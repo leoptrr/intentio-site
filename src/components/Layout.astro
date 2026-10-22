@@ -9,17 +9,15 @@ interface Props {
 
 const { title, description } = Astro.props;
 
-// Variáveis CSS a partir de tokens.json (cópia do design system). "{accent}" aponta para outro token.
+// Variáveis CSS a partir de tokens.json (cópia do design system), só o tema claro: a página é sempre clara.
+// "{accent}" aponta para outro token.
 const colors = tokens.color.tokens.map((t) => {
   const value = typeof t.value === "string" ? tokens.color.tokens.find((o) => `{${o.name}}` === t.value)!.value : t.value;
   return [t.name, value as { light: string; dark: string }] as const;
 });
-const theme = (mode: "light" | "dark") => colors.map(([name, v]) => `--${name}:${v[mode]};`).join("");
+const light = colors.map(([name, v]) => `--${name}:${v.light};`).join("");
 const scale = [...tokens.spacing.tokens, ...tokens.radius.tokens].map((t) => `--${t.name}:${t.value};`).join("");
-const tokenCss =
-  `:root{${scale}${theme("light")}}` +
-  `@media (prefers-color-scheme: dark){:root{${theme("dark")}}}` +
-  `.theme-dark{${theme("dark")}}`;
+const tokenCss = `:root{${scale}${light}}`;
 ---
 
 <!doctype html>
@@ -29,8 +27,7 @@ const tokenCss =
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title}</title>
     <meta name="description" content={description} />
-    <meta name="theme-color" content="#FAFAF9" media="(prefers-color-scheme: light)" />
-    <meta name="theme-color" content="#101214" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#FDFDFD" />
     <link rel="preload" href="/fonts/Geist-Variable.woff2" as="font" type="font/woff2" crossorigin />
     <style is:inline set:html={tokenCss} />
     <script is:inline>

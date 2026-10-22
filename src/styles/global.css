@@ -1,5 +1,5 @@
-/* Estilos base da landing page. As cores, espaços e raios chegam como variáveis
-   geradas de src/tokens.json no Layout. Escala e respiro seguem a diretriz 2.3. */
+/* Estilos base da landing page. Cores, espaços e raios chegam como variáveis geradas de
+   src/tokens.json no Layout (só o tema claro). Tipografia: só Geist, de 300 (títulos) a 600 (botões). */
 
 @font-face {
   font-family: "Geist";
@@ -8,34 +8,24 @@
   font-display: swap;
 }
 
-@font-face {
-  font-family: "Instrument Serif";
-  src: url("/fonts/InstrumentSerif-Regular.woff2") format("woff2");
-  font-weight: 400;
-  font-display: swap;
-}
-
 :root {
   --sans: Geist, -apple-system, system-ui, sans-serif;
-  --serif: "Instrument Serif", "New York", Georgia, serif;
 
   /* clamp() entre 375 px e 1440 px de largura, em rem para seguir o zoom de texto. */
-  --fs-hero: clamp(3rem, 1.94rem + 4.51vw, 6rem);
-  --fs-h2: clamp(2.25rem, 1.72rem + 2.25vw, 3.75rem);
-  --fs-stat: clamp(3.5rem, 2.8rem + 3vw, 5.5rem);
-  --fs-body: clamp(1.0625rem, 0.996rem + 0.28vw, 1.25rem);
+  --fs-hero: clamp(2.75rem, 2.16rem + 2.54vw, 4.5rem);
+  --fs-h2: clamp(1.875rem, 1.57rem + 1.31vw, 2.75rem);
+  --fs-lede: clamp(1.125rem, 1.08rem + 0.19vw, 1.25rem);
   --fs-small: 0.875rem;
 
   --gutter: 20px;
-  --content: 1200px;
-  --reading: 680px;
-  --section-pad: clamp(2.75rem, 2rem + 3.2vw, 4.75rem);
+  --content: 1120px;
+  --reading: 560px;
+  --section-pad: clamp(3.5rem, 2.62rem + 3.76vw, 6rem);
 
-  color-scheme: light dark;
-}
+  --ease-enter: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-move: cubic-bezier(0.77, 0, 0.175, 1);
 
-.theme-dark {
-  color-scheme: dark;
+  color-scheme: light;
 }
 
 *,
@@ -51,10 +41,11 @@ html {
 
 body {
   margin: 0;
-  background: var(--surface-100);
+  background: var(--surface-raised);
   color: var(--ink);
   font-family: var(--sans);
-  font-size: var(--fs-body);
+  font-size: 1.0625rem;
+  font-weight: 400;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   font-synthesis: none;
@@ -70,6 +61,15 @@ figure,
 dl,
 dd {
   margin: 0;
+}
+
+/* Peso máximo da página é 600 (decisão de 22/10): títulos não herdam o bold do navegador. */
+h1,
+h2,
+h3,
+b,
+strong {
+  font-weight: 600;
 }
 
 img,
@@ -88,15 +88,9 @@ a {
   outline-offset: 2px;
 }
 
-/* Números e valores (diretriz 2.3). */
-.num,
-.stat-value,
-.ledger {
-  font-variant-numeric: tabular-nums;
-}
-
 .nowrap {
   white-space: nowrap;
+  font-variant-numeric: tabular-nums;
 }
 
 .visually-hidden {
@@ -117,157 +111,71 @@ a {
 
 .section {
   padding-block: var(--section-pad);
-  background: var(--surface-100);
-  color: var(--ink);
-}
-
-.section.band {
-  background: var(--surface-200);
 }
 
 .eyebrow {
   color: var(--ink-muted);
-  font-size: var(--fs-body);
+  font-size: 0.9375rem;
   font-weight: 500;
 }
 
 .headline {
-  font-family: var(--serif);
   font-size: var(--fs-h2);
-  font-weight: 400;
-  line-height: 1.05;
-  letter-spacing: -0.01em;
+  font-weight: 500;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
   text-wrap: balance;
 }
 
 .eyebrow + .headline {
-  margin-top: 0.25em;
+  margin-top: 0.5rem;
 }
 
 .lede {
   max-width: var(--reading);
-  margin-top: 1.25rem;
+  margin-top: 1rem;
   color: var(--ink-muted);
+  font-size: var(--fs-lede);
   text-wrap: pretty;
 }
 
-.prose {
+.detail {
   max-width: var(--reading);
-}
-
-.split {
-  display: grid;
-  gap: 3rem;
-  margin-top: 3rem;
-  align-items: start;
-}
-
-@media (min-width: 735px) {
-  .split {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  }
-}
-
-.cards {
-  display: grid;
-  gap: 1rem;
-  margin-top: 2.5rem;
-  padding: 0;
-  list-style: none;
-}
-
-@media (min-width: 735px) {
-  .cards {
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  }
-}
-
-.card {
-  padding: 1.5rem;
-  border: 1px solid var(--line);
-  border-radius: var(--radius-lg);
-  background: var(--surface-raised);
-}
-
-.card h3 {
-  font-size: 1em;
-  font-weight: 600;
-}
-
-.card p {
-  margin-top: 0.5rem;
+  margin-top: 1.25rem;
   color: var(--ink-muted);
 }
 
 .closing {
   max-width: var(--reading);
-  margin-top: 2.5rem;
+  margin-top: 2rem;
   font-weight: 500;
 }
 
-/* Números em destaque */
-
-.stats {
-  display: grid;
-  gap: 2rem;
-  margin-top: 3rem;
-  padding: 0;
-  list-style: none;
+/* Cartão cinza que segura uma tela (grade de cartões, como no Notion). */
+.tile {
+  overflow: hidden;
+  border-radius: 28px;
+  background: var(--surface-200);
 }
 
-@media (min-width: 735px) {
-  .stats {
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+/* Texto de um lado, iPhone do outro, alinhados pelo meio. */
+.feature {
+  display: grid;
+  gap: 3rem;
+  align-items: center;
+}
+
+@media (min-width: 900px) {
+  .feature {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 4rem;
   }
-}
-
-.stat-value {
-  display: block;
-  font-size: var(--fs-stat);
-  font-weight: 600;
-  line-height: 1;
-  letter-spacing: -0.03em;
-}
-
-.stat-label {
-  display: block;
-  margin-top: 0.5rem;
-  color: var(--ink-muted);
-}
-
-/* Passos numerados */
-
-.steps {
-  display: grid;
-  gap: 2rem;
-  padding: 0;
-  list-style: none;
-  counter-reset: step;
-}
-
-.steps li {
-  counter-increment: step;
-}
-
-.steps h3 {
-  font-size: 1em;
-  font-weight: 600;
-}
-
-.steps h3::before {
-  content: counter(step) ". ";
-  color: var(--ink-muted);
-}
-
-.steps p {
-  margin-top: 0.25rem;
-  color: var(--ink-muted);
 }
 
 /* Acordeão (Privacidade e Perguntas) */
 
 .accordion {
-  max-width: 820px;
+  max-width: 760px;
   margin-top: 2.5rem;
   border-top: 1px solid var(--line);
 }
@@ -283,7 +191,7 @@ a {
   min-height: 44px;
   padding-block: 1.125rem;
   cursor: pointer;
-  font-weight: 600;
+  font-weight: 500;
   list-style: none;
 }
 
@@ -295,11 +203,16 @@ a {
   content: "+";
   flex: none;
   color: var(--ink-muted);
-  font-weight: 400;
+  font-weight: 300;
 }
 
 .accordion details[open] summary::after {
   content: "−";
+}
+
+.accordion summary h3 {
+  font-size: 1em;
+  font-weight: 500;
 }
 
 .accordion .answer {
@@ -320,21 +233,7 @@ sup a {
   text-underline-offset: 0.15em;
 }
 
-/* Camada de movimento (F3). Só vale com html.motion (Layout); sem ela, tudo fica no estado final.
-   Curvas do design system: entrada e movimento na tela. Só transform e opacity. */
-
-:root {
-  --ease-enter: cubic-bezier(0.23, 1, 0.32, 1);
-  --ease-move: cubic-bezier(0.77, 0, 0.175, 1);
-}
-
-.section {
-  --bg: var(--surface-100);
-}
-
-.section.band {
-  --bg: var(--surface-200);
-}
+/* Camada de movimento. Só vale com html.motion (Layout); sem ela, tudo fica no estado final. */
 
 html.motion [data-reveal] {
   opacity: 0;
