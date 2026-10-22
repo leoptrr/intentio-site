@@ -1,6 +1,7 @@
 // Camada de movimento da landing page (diretriz 2.5 e decisão D6).
 // Base: IntersectionObserver dispara, e transições CSS correm no tempo. Nada lê layout durante o scroll.
-// Sem html.motion (sem JS ou com Reduzir movimento), só os vídeos ganham controle: o resto já está no estado final.
+// Sem html.motion (sem JS ou com Reduzir movimento), só os passos e os vídeos respondem ao toque:
+// nada se mexe sozinho e o resto já está no estado final.
 
 declare global {
   interface Window {
@@ -22,28 +23,6 @@ const once = (els: Iterable<Element>, run: (el: HTMLElement) => void, options?: 
   for (const el of els) io.observe(el);
 };
 
-// Contagem do zero até o valor, uma vez, em cerca de 800 ms. O valor final já está no HTML.
-const countUp = (el: HTMLElement) => {
-  const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
-  let node: Text | null;
-  while ((node = walker.nextNode() as Text | null) && !/\d/.test(node.data));
-  const match = node?.data.match(/\d{1,3}(?:\.\d{3})*(?:,\d+)?/);
-  if (!node || !match) return;
-  const [before, after] = [node.data.slice(0, match.index), node.data.slice(match.index! + match[0].length)];
-  const decimals = match[0].split(",")[1]?.length ?? 0;
-  const target = Number(match[0].replace(/\./g, "").replace(",", "."));
-  const format = new Intl.NumberFormat("pt-BR", { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
-  const text = node;
-  const start = performance.now();
-  const tick = (now: number) => {
-    const t = Math.min(1, (now - start) / 800);
-    const eased = 1 - (1 - t) ** 3;
-    text.data = before + format.format(target * eased) + after;
-    if (t < 1) requestAnimationFrame(tick);
-  };
-  requestAnimationFrame(tick);
-};
-
 if (motion) {
   // Entradas: 8 px e opacidade em 450 ms; quem entra junto ganha 60 ms de intervalo,
   // a menos que o HTML já defina o atraso (--d), como nas linhas da conta.
@@ -57,73 +36,88 @@ if (motion) {
         if (!el.style.getPropertyValue("--d")) el.style.setProperty("--d", `${Math.min(k, 4) * 60}ms`);
         k++;
         el.classList.add("is-in");
-        for (const n of el.querySelectorAll<HTMLElement>("[data-count]")) countUp(n);
       }
     },
     { rootMargin: "0px 0px -10% 0px" },
   );
   for (const el of document.querySelectorAll("[data-reveal]")) io.observe(el);
 
-  // Cenas fixas: o passo que cruza a faixa do meio da tela troca a tela do iPhone.
-  // Só quando a cena fica fixa (mesma condição do CSS); senão, fica o estado final.
-  if (matchMedia("(min-width: 735px), (min-height: 700px)").matches) {
-    for (const scene of document.querySelectorAll<HTMLElement>("[data-scene]")) {
-      const phone = scene.querySelector<HTMLElement>("[data-layers]");
-      if (!phone) continue;
-      const layers = [...phone.querySelectorAll<HTMLElement>(".layer")];
-      const show = (i: number) => layers.forEach((l, j) => l.classList.toggle("is-active", i === j));
-      show(0);
-      phone.dataset.ready = "";
-      const io = new IntersectionObserver(
-        (entries) => {
-          for (const e of entries) if (e.isIntersecting) show(Number((e.target as HTMLElement).dataset.step));
-        },
-        { rootMargin: "-55% 0px -40% 0px" },
-      );
-      for (const step of scene.querySelectorAll("[data-step]")) io.observe(step);
-    }
-  }
-
-  // Hero: um timer só troca a tela e acende a palavra da headline no mesmo instante.
+  // Hero: roteiro que simula o uso do app (data-enter, data-tap, data-hold e data-word em cada tela).
+  // Antes de sair de uma tela, um toque aparece no ponto marcado; a próxima entra subindo (folha),
+  // com fade ou de uma vez (valor digitado). No veredito, só a palavra dele fica acesa na headline.
   // Pausa fora da tela, com a aba escondida ou pelo botão (WCAG 2.2.2).
   const hero = document.querySelector<HTMLElement>("[data-hero]");
   const heroPhone = hero?.querySelector<HTMLElement>("[data-layers]");
   if (hero && heroPhone) {
     const layers = [...heroPhone.querySelectorAll<HTMLElement>(".layer")];
-    const words = [...hero.querySelectorAll<HTMLElement>("[data-word]")];
-    const map = layers.map((l) => Number(l.dataset.word));
+    const words = [...hero.querySelectorAll<HTMLElement>("[data-word]")].filter((w) => !w.classList.contains("layer"));
+    const tap = heroPhone.querySelector<HTMLElement>(".tap");
     const toggle = hero.querySelector<HTMLButtonElement>("[data-hero-toggle]")!;
+    const sheet = "cubic-bezier(0.32, 0.72, 0, 1)";
+    const move = "cubic-bezier(0.77, 0, 0.175, 1)";
     let i = 0;
+    let z = 1;
     let timer = 0;
     let visible = true;
     let userPaused = false;
-    const show = () => {
-      layers.forEach((l, j) => l.classList.toggle("is-active", j === i));
-      words.forEach((w, j) => w.classList.toggle("is-lit", j === map[i]));
+
+    const light = (l: HTMLElement) => {
+      const word = l.dataset.word === undefined ? -1 : Number(l.dataset.word);
+      hero.classList.toggle("calm", word < 0);
+      words.forEach((w, j) => w.classList.toggle("is-lit", j === word));
     };
-    const sync = () => {
-      clearInterval(timer);
-      if (visible && !userPaused && !document.hidden) {
-        timer = window.setInterval(() => {
-          i = (i + 1) % layers.length;
-          show();
-        }, 2800);
-      }
+    const show = async (n: number, animate = true) => {
+      const l = layers[n];
+      l.style.zIndex = String(++z);
+      l.classList.add("is-active");
+      light(l);
+      const kind = animate ? l.dataset.enter : "cut";
+      if (kind === "rise")
+        await l.animate([{ opacity: 0, transform: "translateY(6%)" }, { opacity: 1, transform: "none" }], { duration: 450, easing: sheet }).finished;
+      else if (kind === "fade") await l.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 260, easing: move }).finished;
+      layers.forEach((o) => o !== l && o.classList.remove("is-active"));
     };
-    show();
+    const press = async (l: HTMLElement) => {
+      if (!tap || !l.dataset.tap) return;
+      const [x, y] = l.dataset.tap.split(",");
+      tap.style.left = `${x}%`;
+      tap.style.top = `${y}%`;
+      await tap.animate(
+        [
+          { opacity: 0, transform: "translate(-50%, -50%) scale(0.6)" },
+          { opacity: 1, transform: "translate(-50%, -50%) scale(1)", offset: 0.35 },
+          { opacity: 0, transform: "translate(-50%, -50%) scale(1.15)" },
+        ],
+        { duration: 520, easing: "cubic-bezier(0.23, 1, 0.32, 1)" },
+      ).finished;
+    };
+    const running = () => visible && !userPaused && !document.hidden;
+    const step = async () => {
+      await press(layers[i]);
+      if (!running()) return;
+      i = (i + 1) % layers.length;
+      await show(i);
+      schedule();
+    };
+    const schedule = () => {
+      clearTimeout(timer);
+      if (running()) timer = window.setTimeout(step, Number(layers[i].dataset.hold) || 1500);
+    };
+
+    show(0, false);
     heroPhone.dataset.ready = "";
     hero.dataset.ready = "";
     toggle.hidden = false;
     toggle.addEventListener("click", () => {
       userPaused = !userPaused;
       toggle.textContent = userPaused ? "Continuar animação" : "Pausar animação";
-      sync();
+      schedule();
     });
     new IntersectionObserver(([e]) => {
       visible = e.isIntersecting;
-      sync();
+      schedule();
     }).observe(heroPhone);
-    document.addEventListener("visibilitychange", sync);
+    document.addEventListener("visibilitychange", schedule);
   }
 
   // Barra fixa: o "Em breve" (ou "Baixar") aparece quando o CTA do hero sai da tela.
@@ -133,6 +127,46 @@ if (motion) {
     nav.dataset.ready = "";
     new IntersectionObserver(([e]) => nav.classList.toggle("cta-shown", !e.isIntersecting)).observe(heroCta);
   }
+}
+
+// Passos: tocar numa linha troca a tela do iPhone (com ou sem movimento). Com movimento e visível,
+// avança sozinho a cada 4,5 s; para de vez quando a pessoa escolhe uma linha, e pausa fora da tela.
+for (const block of document.querySelectorAll<HTMLElement>("[data-steps]")) {
+  const phone = block.querySelector<HTMLElement>("[data-layers]");
+  if (!phone) continue;
+  const layers = [...phone.querySelectorAll<HTMLElement>(".layer")];
+  const rows = [...block.querySelectorAll<HTMLButtonElement>("[data-step]")];
+  let i = 0;
+  let timer = 0;
+  let visible = false;
+  let chosen = false;
+  const show = (n: number) => {
+    i = n;
+    layers.forEach((l, j) => l.classList.toggle("is-active", j === n));
+    rows.forEach((r, j) => r.setAttribute("aria-pressed", String(j === n)));
+  };
+  const sync = () => {
+    clearInterval(timer);
+    if (motion && visible && !chosen && !document.hidden) timer = window.setInterval(() => show((i + 1) % layers.length), 4500);
+  };
+  rows.forEach((r, j) =>
+    r.addEventListener("click", () => {
+      chosen = true;
+      show(j);
+      sync();
+    }),
+  );
+  show(0);
+  phone.dataset.ready = "";
+  block.dataset.ready = "";
+  new IntersectionObserver(
+    ([e]) => {
+      visible = e.isIntersecting;
+      sync();
+    },
+    { threshold: 0.4 },
+  ).observe(block);
+  document.addEventListener("visibilitychange", sync);
 }
 
 // Vídeos: a fonte entra a cerca de 150vh; tocam quando visíveis e pausam fora.

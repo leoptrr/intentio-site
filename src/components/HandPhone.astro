@@ -1,0 +1,154 @@
+---
+// iPhone na mão (foto). A tela da foto foi recortada (chroma verde → transparente) e as capturas do app
+// ficam por baixo, na caixa da tela medida na foto. A ilha e as bordas arredondadas vêm da própria foto.
+// Foto nova: node scripts/key-photo.mjs <foto.png> <nome> (grava a foto e a caixa em photos.json).
+// Mesmo roteiro de camadas do Phone (data-layers, .layer, .tap), lido pelo motion.ts.
+import { Picture } from "astro:assets";
+import type { ImageMetadata } from "astro";
+import { findScreen } from "../lib/screens";
+import boxes from "../assets/photos/photos.json";
+
+const photos = import.meta.glob<{ default: ImageMetadata }>("../assets/photos/*.png", { eager: true });
+
+interface Layer {
+  alt: string;
+  screen?: string;
+  word?: number;
+  enter?: "rise" | "fade" | "cut";
+  tap?: [number, number];
+  hold?: number;
+  rest?: boolean;
+}
+
+interface Props {
+  alt: string;
+  layers: Layer[];
+  photo?: string;
+  priority?: boolean;
+}
+
+const { alt, layers, photo: name = "mao-1", priority = false } = Astro.props;
+const photo = photos[`../assets/photos/${name}.png`]?.default;
+const box = (boxes as Record<string, { width: number; height: number; screen: Record<string, number> }>)[name];
+if (!photo || !box) throw new Error(`[landing] foto "${name}" sem arquivo ou sem medidas em photos.json`);
+const marked = layers.findIndex((l) => l.rest);
+const rest = marked >= 0 ? marked : layers.length - 1;
+const images = layers.map((l) => findScreen(l.screen));
+---
+
+<figure
+  class="hand"
+  style={`--ratio:${box.width}/${box.height};--sl:${box.screen.left}%;--st:${box.screen.top}%;--sw:${box.screen.width}%;--sh:${box.screen.height}%`}
+>
+  <div class="hand-screen" data-layers role="img" aria-label={alt}>
+    {
+      layers.map((l, i) => (
+        <div
+          class="layer"
+          data-rest={i === rest ? "" : undefined}
+          data-word={l.word}
+          data-enter={l.enter}
+          data-tap={l.tap?.join(",")}
+          data-hold={l.hold}
+        >
+          {images[i] && (
+            <Picture
+              src={images[i]}
+              alt=""
+              widths={[300, 600]}
+              sizes="300px"
+              formats={["avif", "webp"]}
+              fallbackFormat="webp"
+              loading={priority && (i === rest || i === 0) ? "eager" : "lazy"}
+            />
+          )}
+        </div>
+      ))
+    }
+    <span class="tap" aria-hidden="true"></span>
+  </div>
+  <div class="hand-photo">
+    <Picture
+    src={photo}
+    alt=""
+    widths={[480, 960]}
+    sizes="(min-width: 900px) 460px, 90vw"
+    formats={["avif", "webp"]}
+    fallbackFormat="webp"
+    loading={priority ? "eager" : "lazy"}
+    fetchpriority={priority ? "high" : "auto"}
+  />
+  </div>
+</figure>
+
+<style>
+  .hand {
+    position: relative;
+    width: min(100%, 460px);
+    aspect-ratio: var(--ratio);
+    margin-inline: auto;
+  }
+
+  .hand-screen {
+    position: absolute;
+    left: var(--sl);
+    top: var(--st);
+    width: var(--sw);
+    height: var(--sh);
+    overflow: hidden;
+    border-radius: 12%/5.6%;
+    background: var(--surface-raised);
+    container-type: inline-size;
+  }
+
+  .layer {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+  }
+
+  .layer[data-rest] {
+    opacity: 1;
+  }
+
+  [data-ready] .layer {
+    opacity: 0;
+  }
+
+  [data-ready] .layer:global(.is-active) {
+    opacity: 1;
+  }
+
+  .layer :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top;
+  }
+
+  .tap {
+    position: absolute;
+    z-index: 50;
+    width: 13cqw;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: rgba(20, 23, 26, 0.35);
+    box-shadow: 0 0 0 1.5cqw rgba(20, 23, 26, 0.12);
+    opacity: 0;
+    pointer-events: none;
+    transform: translate(-50%, -50%);
+  }
+
+  /* A foto fica por cima (a tela dela é transparente) e se mistura ao fundo do cartão. */
+  .hand-photo {
+    position: absolute;
+    inset: 0;
+    mix-blend-mode: multiply;
+    pointer-events: none;
+  }
+
+  .hand-photo :global(img) {
+    width: 100%;
+    height: 100%;
+  }
+</style>
