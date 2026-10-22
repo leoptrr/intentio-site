@@ -1,0 +1,241 @@
+# Copy da landing page do Intentio.
+# Fonte: "Intentio - Landing page (copy e diretrizes)", Parte 1 (22/10/2026).
+# Cada chave de topo é uma seção. Os números sobrescritos (¹ ² ³ ⁴) viram links para as notas.
+# Valores em reais podem ser escritos com espaço comum: o build troca por espaço não separável.
+# Texto com [FALTA: …] precisa ser preenchido antes de publicar (o build avisa).
+
+meta:
+  title: "Intentio · Saiba se a compra cabe no seu mês"
+  description: "O app para iPhone que diz se a compra cabe no seu mês, antes de você pagar. R$ 19,90 por mês."
+
+nav:
+  brand: "Intentio"
+  links:
+    - { label: "Como funciona", href: "#avaliar" }
+    - { label: "Preço", href: "#preco" }
+    - { label: "Perguntas", href: "#perguntas" }
+  soon: "Em breve"
+  download: "Baixar"
+
+hero:
+  eyebrow: "Intentio"
+  words: ["Cabe.", "Espere.", "Não cabe."]
+  subtitle: "O app para iPhone que diz se a compra cabe no seu mês, antes de você pagar."
+  note: "Chega à App Store em janeiro de 2027. Para iPhone 11 ou mais novo.⁴"
+  visual: "Tela do Intentio avaliando duas compras: R$ 389,90 com o veredito Espere e R$ 150 com o veredito Cabe"
+  # Cada tela acende a palavra da headline de mesmo índice (0 Cabe, 1 Espere, 2 Não cabe).
+  screens:
+    - { alt: "Compra de R$ 389,90 com o veredito Espere", word: 1 }
+    - { alt: "Compra de R$ 150 com o veredito Cabe", word: 0 }
+
+destaques:
+  title: "O que cabe no Intentio."
+  cards:
+    - label: "Avaliar compra"
+      text: "Faz sentido comprar agora? Ele responde em uma palavra."
+      visual: "Tela Avaliar compra com o veredito em uma palavra"
+    - label: "Quanto cabe"
+      text: "R$ 69 por dia até o salário.¹"
+      visual: "Tela Hoje mostrando R$ 69 por dia até o salário"
+    - label: "Próximos meses"
+      text: "12 meses à frente, dia por dia."
+      visual: "Grade com os próximos 12 meses coloridos por estado"
+    - label: "Contas e parcelas"
+      text: "Cada uma no dia em que vence."
+      visual: "Lista de contas fixas e parcelas com o dia de cada uma"
+    - label: "Configuração"
+      text: "Três passos e você já vê o seu número."
+      visual: "Primeiro passo da configuração, com renda e dia do pagamento"
+    - label: "Privacidade"
+      text: "Seus números ficam no seu iPhone.²"
+      visual: "Tela de Ajustes com a sincronização pelo iCloud"
+
+avaliar:
+  eyebrow: "Avaliar compra"
+  title: "Uma pergunta antes de cada compra."
+  subtitle: "Você digita o valor. O Intentio olha o seu mês dia a dia, até o próximo salário, e responde antes de você pagar."
+  steps:
+    - title: "Digite o valor."
+      text: "R$ 389,90, à vista ou parcelado."
+      visual: "Folha Avaliar compra com o valor R$ 389,90 digitado"
+    - title: "Ele olha os próximos meses."
+      text: "Salário, contas fixas, parcelas, dívidas e o que você costuma gastar por dia entram na conta."
+      visual: "Projeção dos próximos meses sendo calculada"
+    - title: "E responde."
+      text: "Espere: novembro fica abaixo de zero por 3 dias e usa até R$ 159 da reserva.¹"
+      visual: "Veredito Espere para a compra de R$ 389,90"
+  verdicts:
+    - state: "positive"
+      word: "Cabe"
+      text: "Sobra dinheiro em todos os dias depois da compra."
+    - state: "wait"
+      word: "Espere"
+      text: "A reserva cobre alguns dias no vermelho. Depois do próximo salário, a compra pode caber."
+    - state: "negative"
+      word: "Não cabe"
+      text: "Nem a reserva cobre. Você vê em que mês falta e quanto."
+  closing: "A decisão continua sua. Registre a compra assim mesmo, e os próximos meses se ajustam na hora."
+
+quanto-cabe:
+  eyebrow: "Quanto cabe"
+  title: "Um número para o mês inteiro."
+  subtitle: "Quanto você ainda pode gastar até o próximo salário, já sem a reserva e as contas que vão vencer."
+  stats:
+    - { value: "R$ 1.251", label: "até o dia 5" }
+    - { value: "18 dias", label: "até o salário" }
+    - { value: "R$ 69", label: "por dia" }
+  statsNote: "¹"
+  breakdown:
+    title: "Como chegamos nesse número"
+    intro: "Toque e a conta abre, linha por linha.¹"
+    lines:
+      - { label: "Entrou", value: "+ R$ 6.200,00" }
+      - { label: "Reserva do mês", value: "− R$ 480,00" }
+      - { label: "Gastos desde 5 out", value: "− R$ 4.469,00" }
+    total: { label: "Quanto cabe", value: "R$ 1.251,00" }
+  visual: "Tela Hoje com R$ 1.251 até o dia 5 e a conta aberta linha por linha"
+
+proximos-meses:
+  eyebrow: "Próximos meses"
+  title: "O ano inteiro, um dia de cada vez."
+  subtitle: "Veja hoje como fica março. O Intentio projeta o saldo de cada dia dos próximos 12 meses."
+  highlight: "Tudo cabe até março. O ponto mais baixo é R$ 188, em 4 de fevereiro.¹"
+  points:
+    - title: "Cores com palavra"
+      text: "Azul quando sobra, laranja quando a reserva entra, vermelho quando falta. A palavra vem sempre junto. O “Cabe” é azul, e não verde, para quem tem daltonismo."
+      visual: "Grade dos próximos 12 meses, cada mês com a cor e a palavra do estado"
+    - title: "Com e sem a compra"
+      text: "Compare o mês com e sem a compra, um ao lado do outro."
+      visual: "Tabela dia a dia de novembro com e sem a compra"
+    - title: "Folga"
+      text: "Quando sobra, o Intentio mostra quanto dá para guardar a mais."
+      visual: "Sugestão de quanto dá para guardar a mais no mês"
+  visual: "Grade dos próximos 12 meses e a tabela dia a dia de novembro"
+
+pagamentos:
+  title: "Do jeito que o seu dinheiro sai."
+  cards:
+    - title: "Parcelas"
+      text: "Parcelou? Você escolhe o dia em que as parcelas caem, e cada uma entra no mês certo."
+      visual: "Compra parcelada com o dia de cada parcela"
+    - title: "Contas fixas"
+      text: "Aluguel, internet, luz e academia, cada uma no seu dia."
+      visual: "Lista de contas fixas com o dia de vencimento"
+    - title: "Agendados"
+      text: "Uma conta que ainda vai chegar já entra na projeção."
+      visual: "Lançamento agendado para uma data futura"
+    - title: "Gasto do dia a dia"
+      text: "Mercado e café também contam. O Intentio sugere quanto você costuma gastar por dia."
+      visual: "Sugestão de gasto do dia a dia"
+
+lancamentos:
+  eyebrow: "Lançamentos"
+  title: "Semana, mês ou ano. Em um toque."
+  subtitle: "Veja o que saiu e o que entrou em cada período. Em outubro, até o dia 18, saíram R$ 4.469 e entraram R$ 6.200.¹"
+  detail: "Apagou sem querer? Toque em Desfazer."
+  visual: "Tela Lançamentos no mês de outubro: saiu R$ 4.469, entrou R$ 6.200"
+
+plano:
+  eyebrow: "Plano"
+  title: "Um caminho para sair do vermelho."
+  subtitle: "Cadastre as dívidas e veja em que mês você fica livre, quanto vai pagar de juros e em que ordem pagar."
+  stats:
+    - { value: "Set 2027", label: "fora do vermelho, pagando R$ 1.100 por mês" }
+    - { value: "R$ 3.039", label: "de juros no caminho" }
+  statsNote: "¹"
+  order: "Menor saldo ou maior juro. Você escolhe e vê a diferença; neste exemplo, R$ 299 de juros.¹"
+  closing: "O valor do plano já sai do quanto cabe."
+  visual: "Tela Plano com fora do vermelho em setembro de 2027"
+
+design:
+  eyebrow: "Design"
+  title: "Calmo de propósito."
+  subtitle: "Quase tudo é tinta sobre papel. Um único ponto laranja por tela mostra onde olhar."
+  details:
+    - "Liquid Glass na navegação do iOS 27. O conteúdo fica sólido, para ler sem esforço."
+    - "Modo escuro, é claro."
+    - "O movimento só aparece para explicar uma mudança."
+  accessibility:
+    title: "Feito para todo mundo ler."
+    text: "VoiceOver, letra grande e Reduzir movimento em cada tela, e botões de pelo menos 44 pontos. Testado num iPhone de verdade."
+  # Ao rolar, as camadas trocam do tamanho padrão de letra até o maior (scrub).
+  visuals:
+    - alt: "Tela Hoje do Intentio no tema claro, com a letra crescendo até o maior tamanho"
+      layers:
+        - { alt: "Tema claro, letra no tamanho padrão" }
+        - { alt: "Tema claro, letra grande" }
+        - { alt: "Tema claro, letra no maior tamanho" }
+    - alt: "Tela Hoje do Intentio no tema escuro, com a letra crescendo até o maior tamanho"
+      layers:
+        - { alt: "Tema escuro, letra no tamanho padrão" }
+        - { alt: "Tema escuro, letra grande" }
+        - { alt: "Tema escuro, letra no maior tamanho" }
+
+privacidade:
+  title: "Seus números ficam no seu iPhone."
+  subtitle: "O Intentio guarda tudo no aparelho e no seu iCloud.² Você digita os valores, e o app não se conecta ao seu banco."
+  items:
+    - { title: "Sem conexão com banco.", text: "Você decide o que entra. Nenhuma senha de banco no app." }
+    - { title: "iCloud.", text: "Seus dados no aparelho e na sua conta do iCloud.²" }
+    - { title: "Sem conta.", text: "Comece sem criar login." }
+    - { title: "Modo escuro.", text: "Segue o ajuste do iPhone." }
+    - { title: "Acessibilidade.", text: "VoiceOver, letra grande, Reduzir movimento e Reduzir transparência." }
+    - { title: "Desfazer.", text: "Apagou um lançamento, uma conta ou uma dívida? Dá para voltar." }
+
+comecar:
+  title: "Três passos até o seu primeiro número."
+  steps:
+    - { title: "Quanto você recebe e em que dia.", text: "" }
+    - { title: "Suas contas fixas.", text: "Sugestões prontas para tocar e ajustar." }
+    - { title: "Quanto guardar por mês.", text: "5, 10 ou 15% da renda, ou o valor que você quiser." }
+  closing: "Seu mês começa assim."
+  visual: "Configuração em três passos terminando no quanto cabe"
+
+preco:
+  title: "R$ 19,90 por mês."
+  subtitle: "Menos de R$ 0,70 por dia. Ou pague por ano: [FALTA: valor anual e o equivalente em meses]."
+  # [FALTA: teste grátis, sim ou não]. Se houver, ele aparece aqui, no CTA final e nas perguntas.
+
+dinheiro:
+  title: "Ele fala do dinheiro."
+  quote: "Em novembro, falta R$ 189 mesmo usando toda a reserva."
+  body: "É assim que o Intentio avisa: com o mês e o número, para você decidir o que fazer."
+  closing: "Gaste de propósito."
+
+perguntas:
+  title: "Perguntas"
+  items:
+    - q: "Quando o Intentio chega?"
+      a: "Em meados de janeiro de 2027, na App Store."
+    - q: "Funciona em qual iPhone?"
+      a: "Em qualquer iPhone com iOS 27: do iPhone 11 em diante, incluindo o iPhone SE de 2ª geração ou mais novo.⁴"
+    - q: "Quanto custa?"
+      a: "R$ 19,90 por mês, ou o plano anual de [FALTA: valor anual]."
+    - q: "O Intentio se conecta ao meu banco?"
+      a: "Não. Você digita os valores, e o app nunca pede senha de banco."
+    - q: "Onde ficam os meus dados?"
+      a: "No seu iPhone e no seu iCloud.²"
+    - q: "Preciso criar conta?"
+      a: "Não. Você começa direto, sem login."
+    - q: "Ele diz se eu devo comprar?"
+      a: "Ele mostra se a compra cabe e o número que explica. A decisão é sua, e o app não faz recomendação financeira.³"
+    - q: "O que é a reserva?"
+      a: "É o valor que você separa todo mês. O quanto cabe já desconta a reserva. A resposta Espere aparece quando a compra usaria parte dela."
+    - q: "E se eu parcelar?"
+      a: "Você escolhe o dia em que as parcelas caem, e o Intentio avalia todas elas, nos meses em que caem."
+    - q: "Tem para Android?"
+      a: "Por enquanto, só iPhone."
+
+baixar:
+  title: "Gaste de propósito."
+  body: "Antes de comprar, saiba se cabe. R$ 19,90 por mês, no seu iPhone."
+  visual: "Tela Hoje do Intentio só com o número e o ponto laranja"
+
+notas:
+  items:
+    - "Exemplos com dados fictícios: salário de R$ 6.200 no dia 5, reserva de R$ 480 por mês, 5 contas fixas, parcelas e dívidas de exemplo."
+    - "A sincronização pelo iCloud depende de uma conta do iCloud ativa no iPhone."
+    - "O Intentio faz cálculos a partir dos valores que você informa e não faz recomendação financeira."
+    - "Requer iOS 27. Compatível com o iPhone 11 ou mais novo e com o iPhone SE (2ª geração ou mais novo)."
+  trademark: "Apple, o logotipo da Apple e iPhone são marcas comerciais da Apple Inc., registradas nos EUA e em outros países. App Store é uma marca de serviço da Apple Inc."
+  legal: "[FALTA: links para a política de privacidade e os termos de uso]"
