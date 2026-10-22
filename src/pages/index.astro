@@ -1,0 +1,529 @@
+---
+// Landing page do Intentio. Ordem e âncoras da diretriz 2.2; um h1 (hero), um h2 por seção, h3 nos itens.
+// Movimento: data-reveal (entradas), Scene (cenas fixas), data-hero e Phone scrub; tudo em src/scripts/motion.ts.
+import { getCollection } from "astro:content";
+import Layout from "../components/Layout.astro";
+import Nav from "../components/Nav.astro";
+import Cta from "../components/Cta.astro";
+import Phone from "../components/Phone.astro";
+import Gallery from "../components/Gallery.astro";
+import Stats from "../components/Stats.astro";
+import Scene from "../components/Scene.astro";
+import { rich, resetNotes } from "../lib/rich.mjs";
+
+const c = Object.fromEntries((await getCollection("landing")).map((e) => [e.id, e.data as any]));
+
+const missing = JSON.stringify(c).match(/\[FALTA[^\]]*\]/g);
+if (missing) console.warn(`[landing] ${missing.length} texto(s) com [FALTA] antes de publicar:\n  ${missing.join("\n  ")}`);
+
+resetNotes();
+const { hero, destaques, avaliar, pagamentos, lancamentos, plano, design, privacidade, comecar, preco, dinheiro, perguntas, baixar, notas } = c;
+const quanto = c["quanto-cabe"];
+const meses = c["proximos-meses"];
+---
+
+<Layout title={c.meta.title} description={c.meta.description}>
+  <Nav nav={c.nav} />
+
+  <main>
+    <section id="hero" class="section hero" data-hero>
+      <div class="wrap hero-inner">
+        <p class="eyebrow">{hero.eyebrow}</p>
+        <h1 class="hero-title">{hero.words.map((w: string, i: number) => <>{i > 0 && " "}<span data-word={i}>{w}</span></>)}</h1>
+        <p class="lede" set:html={rich(hero.subtitle)} />
+        <Cta position="hero" />
+        <p class="note" set:html={rich(hero.note)} />
+        <div class="hero-phone">
+          <Phone alt={hero.visual} layers={hero.screens} rest={0} priority />
+          <button type="button" class="hero-toggle" data-hero-toggle hidden>Pausar animação</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="destaques" class="section band">
+      <div class="wrap">
+        <h2 class="headline" data-reveal>{destaques.title}</h2>
+      </div>
+      <Gallery label="Destaques" items={destaques.cards.map((card: any) => card.label)}>
+        {
+          destaques.cards.map((card: any) => (
+            <li class="rail-card">
+              <Phone alt={card.visual} screen={card.screen} crop="bottom" width={260} />
+              <h3>{card.label}</h3>
+              <p set:html={rich(card.text)} />
+            </li>
+          ))
+        }
+      </Gallery>
+    </section>
+
+    <section id="avaliar" class="section">
+      <div class="wrap">
+        <p class="eyebrow" data-reveal>{avaliar.eyebrow}</p>
+        <h2 class="headline" data-reveal>{avaliar.title}</h2>
+        <p class="lede" data-reveal set:html={rich(avaliar.subtitle)} />
+        <Scene alt="Sequência no iPhone: digitar o valor, a projeção dos próximos meses e o veredito" steps={avaliar.steps} />
+        <ul class="cards verdicts">
+          {
+            avaliar.verdicts.map((v: any) => (
+              <li class={`card verdict verdict-${v.state}`} data-reveal>
+                <h3>{v.word}</h3>
+                <p set:html={rich(v.text)} />
+              </li>
+            ))
+          }
+        </ul>
+        <p class="closing" data-reveal set:html={rich(avaliar.closing)} />
+      </div>
+    </section>
+
+    <section id="quanto-cabe" class="section band">
+      <div class="wrap">
+        <p class="eyebrow" data-reveal>{quanto.eyebrow}</p>
+        <h2 class="headline" data-reveal>{quanto.title}</h2>
+        <p class="lede" data-reveal set:html={rich(quanto.subtitle)} />
+        <Stats items={quanto.stats} note={quanto.statsNote} />
+        <div class="split">
+          <div class="card breakdown" data-reveal>
+            <h3>{quanto.breakdown.title}</h3>
+            <p set:html={rich(quanto.breakdown.intro)} />
+            <dl class="ledger">
+              {
+                quanto.breakdown.lines.map((l: any, i: number) => (
+                  <div data-reveal style={`--d:${i * 120}ms`}>
+                    <dt>{l.label}</dt>
+                    <dd set:html={rich(l.value)} />
+                  </div>
+                ))
+              }
+              <div class="total" data-reveal style={`--d:${quanto.breakdown.lines.length * 120 + 120}ms`}>
+                <dt>{quanto.breakdown.total.label}</dt>
+                <dd set:html={rich(quanto.breakdown.total.value)} />
+              </div>
+            </dl>
+          </div>
+          <Phone alt={quanto.visual} />
+        </div>
+      </div>
+    </section>
+
+    <section id="proximos-meses" class="section">
+      <div class="wrap">
+        <p class="eyebrow" data-reveal>{meses.eyebrow}</p>
+        <h2 class="headline" data-reveal>{meses.title}</h2>
+        <p class="lede" data-reveal set:html={rich(meses.subtitle)} />
+        <p class="highlight" data-reveal set:html={rich(meses.highlight)} />
+        <Scene alt={meses.visual} steps={meses.points} tag="ul" />
+      </div>
+    </section>
+
+    <section id="pagamentos" class="section band">
+      <div class="wrap">
+        <h2 class="headline" data-reveal>{pagamentos.title}</h2>
+        <ul class="cards">
+          {
+            pagamentos.cards.map((card: any) => (
+              <li class="card" data-reveal>
+                <Phone alt={card.visual} video={card.video} crop="bottom" width={240} />
+                <h3>{card.title}</h3>
+                <p set:html={rich(card.text)} />
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+    </section>
+
+    <section id="lancamentos" class="section">
+      <div class="wrap split">
+        <div>
+          <p class="eyebrow" data-reveal>{lancamentos.eyebrow}</p>
+          <h2 class="headline" data-reveal>{lancamentos.title}</h2>
+          <p class="lede" data-reveal set:html={rich(lancamentos.subtitle)} />
+          <p class="closing" data-reveal set:html={rich(lancamentos.detail)} />
+        </div>
+        <Phone alt={lancamentos.visual} />
+      </div>
+    </section>
+
+    <section id="plano" class="section band">
+      <div class="wrap">
+        <p class="eyebrow" data-reveal>{plano.eyebrow}</p>
+        <h2 class="headline" data-reveal>{plano.title}</h2>
+        <p class="lede" data-reveal set:html={rich(plano.subtitle)} />
+        <Stats items={plano.stats} note={plano.statsNote} />
+        <p class="lede" data-reveal set:html={rich(plano.order)} />
+        <p class="closing" data-reveal set:html={rich(plano.closing)} />
+      </div>
+    </section>
+
+    <section id="design" class="section theme-dark">
+      <div class="wrap">
+        <p class="eyebrow" data-reveal>{design.eyebrow}</p>
+        <h2 class="headline" data-reveal>{design.title}</h2>
+        <p class="lede" data-reveal set:html={rich(design.subtitle)} />
+        <ul class="points">
+          {design.details.map((d: string) => <li data-reveal><p set:html={rich(d)} /></li>)}
+        </ul>
+        <div class="split pair">
+          {design.visuals.map((v: any) => <Phone alt={v.alt} layers={v.layers} scrub />)}
+        </div>
+        <div class="prose a11y" data-reveal>
+          <h3>{design.accessibility.title}</h3>
+          <p set:html={rich(design.accessibility.text)} />
+        </div>
+      </div>
+    </section>
+
+    <section id="privacidade" class="section">
+      <div class="wrap">
+        <h2 class="headline" data-reveal>{privacidade.title}</h2>
+        <p class="lede" data-reveal set:html={rich(privacidade.subtitle)} />
+        <div class="accordion">
+          {
+            privacidade.items.map((i: any) => (
+              <details>
+                <summary>{i.title}</summary>
+                <p class="answer" set:html={rich(i.text)} />
+              </details>
+            ))
+          }
+        </div>
+      </div>
+    </section>
+
+    <section id="comecar" class="section band">
+      <div class="wrap split">
+        <div>
+          <h2 class="headline" data-reveal>{comecar.title}</h2>
+          <ol class="steps start-steps">
+            {
+              comecar.steps.map((s: any) => (
+                <li>
+                  <h3>{s.title}</h3>
+                  {s.text && <p set:html={rich(s.text)} />}
+                </li>
+              ))
+            }
+          </ol>
+          <p class="closing" data-reveal set:html={rich(comecar.closing)} />
+        </div>
+        <Phone alt={comecar.visual} />
+      </div>
+    </section>
+
+    <section id="preco" class="section">
+      <div class="wrap center">
+        <h2 class="headline" data-reveal set:html={rich(preco.title)} />
+        <p class="lede" data-reveal set:html={rich(preco.subtitle)} />
+        <Cta position="preco" />
+      </div>
+    </section>
+
+    <section id="dinheiro" class="section band">
+      <div class="wrap center">
+        <h2 class="headline" data-reveal>{dinheiro.title}</h2>
+        <blockquote class="quote" data-reveal set:html={rich(`“${dinheiro.quote}”`)} />
+        <p class="lede" data-reveal set:html={rich(dinheiro.body)} />
+        <p class="closing signature" data-reveal>{dinheiro.closing}</p>
+      </div>
+    </section>
+
+    <section id="perguntas" class="section">
+      <div class="wrap">
+        <h2 class="headline" data-reveal>{perguntas.title}</h2>
+        <div class="accordion">
+          {
+            perguntas.items.map((i: any) => (
+              <details>
+                <summary>
+                  <h3>{i.q}</h3>
+                </summary>
+                <p class="answer" set:html={rich(i.a)} />
+              </details>
+            ))
+          }
+        </div>
+      </div>
+    </section>
+
+    <section id="baixar" class="section theme-dark">
+      <div class="wrap center">
+        <h2 class="headline" data-reveal>{baixar.title}</h2>
+        <p class="lede" data-reveal set:html={rich(baixar.body)} />
+        <Cta position="final" />
+        <div class="final-phone"><Phone alt={baixar.visual} /></div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="section band footer">
+    <div class="wrap">
+      <h2 class="visually-hidden">Notas</h2>
+      <ol class="notes">
+        {
+          notas.items.map((n: string, i: number) => (
+            <li id={`nota-${i + 1}`}>
+              <span set:html={rich(n)} />{" "}
+              <a href={`#ref-${i + 1}`} aria-label={`Voltar à referência da nota ${i + 1}`}>↩</a>
+            </li>
+          ))
+        }
+      </ol>
+      <p class="trademark">{notas.trademark}</p>
+      <p class="trademark">{notas.legal}</p>
+    </div>
+  </footer>
+</Layout>
+
+<script>
+  import "../scripts/motion.ts";
+</script>
+
+<style>
+  .hero {
+    padding-top: clamp(3rem, 2rem + 4vw, 6rem);
+    text-align: center;
+  }
+
+  .hero-inner > * {
+    margin-inline: auto;
+  }
+
+  .hero-title {
+    font-family: var(--serif);
+    font-size: var(--fs-hero);
+    font-weight: 400;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    text-wrap: balance;
+  }
+
+  .hero-title span {
+    display: inline-block;
+    margin-inline: 0.12em;
+  }
+
+  .note {
+    margin-top: 0.75rem;
+    color: var(--ink-muted);
+    font-size: var(--fs-small);
+  }
+
+  .hero-phone,
+  .final-phone {
+    margin-top: 3rem;
+  }
+
+  /* Hero: a palavra do veredito acende junto com a tela. 50% (e não 40%) mantém 3:1 no tema claro. */
+  :global(html.motion) .hero[data-ready] .hero-title span {
+    opacity: 0.5;
+    transition: opacity 260ms var(--ease-move);
+  }
+
+  :global(html.motion) .hero[data-ready] .hero-title span.is-lit {
+    opacity: 1;
+  }
+
+  .hero-toggle {
+    min-height: 44px;
+    margin-top: 1rem;
+    padding-inline: 1rem;
+    border: 0;
+    border-radius: var(--radius-full);
+    background: var(--glass-platter);
+    color: var(--ink);
+    cursor: pointer;
+    font: inherit;
+    font-size: var(--fs-small);
+  }
+
+  .hero-toggle[hidden] {
+    display: none;
+  }
+
+  .center {
+    text-align: center;
+  }
+
+  .center > * {
+    margin-inline: auto;
+  }
+
+  .rail-card {
+    padding: 1.5rem 1.5rem 1.75rem;
+    border-radius: var(--radius-lg);
+    background: var(--surface-raised);
+  }
+
+  .rail-card h3,
+  #pagamentos .card h3 {
+    margin-top: 1.5rem;
+    font-size: 1em;
+    font-weight: 600;
+  }
+
+  .rail-card p {
+    margin-top: 0.25rem;
+    color: var(--ink-muted);
+  }
+
+  .verdicts {
+    margin-top: 3rem;
+  }
+
+  .verdict {
+    border: 0;
+  }
+
+  .verdict h3 {
+    font-size: 1.25em;
+  }
+
+  .verdict p {
+    color: var(--ink);
+  }
+
+  .verdict-positive {
+    background: var(--positive-soft);
+  }
+
+  .verdict-positive h3 {
+    color: var(--positive);
+  }
+
+  .verdict-wait {
+    background: var(--accent-soft);
+  }
+
+  .verdict-wait h3 {
+    color: var(--accent-strong);
+  }
+
+  .verdict-negative {
+    background: var(--negative-soft);
+  }
+
+  .verdict-negative h3 {
+    color: var(--negative);
+  }
+
+  .breakdown p {
+    margin-top: 0.25rem;
+  }
+
+  .ledger {
+    margin-top: 1.5rem;
+  }
+
+  .ledger div {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-block: 0.75rem;
+    border-top: 1px solid var(--line);
+  }
+
+  .ledger .total {
+    font-weight: 600;
+  }
+
+  .highlight {
+    font-size: 1.25em;
+    font-weight: 500;
+    text-wrap: pretty;
+  }
+
+  .points {
+    display: grid;
+    gap: 1.5rem;
+    max-width: var(--reading);
+    margin-top: 2rem;
+    padding: 0;
+    list-style: none;
+  }
+
+  .points h3 {
+    font-size: 1em;
+    font-weight: 600;
+  }
+
+  .points p {
+    color: var(--ink-muted);
+  }
+
+  .points h3 + p {
+    margin-top: 0.25rem;
+  }
+
+  .pair {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+  }
+
+  .a11y {
+    margin-top: 3rem;
+  }
+
+  .a11y h3 {
+    font-family: var(--serif);
+    font-size: 1.75em;
+    font-weight: 400;
+  }
+
+  .a11y p {
+    margin-top: 0.5rem;
+    color: var(--ink-muted);
+  }
+
+  .accordion summary h3 {
+    font-size: 1em;
+    font-weight: 600;
+  }
+
+  .start-steps {
+    margin-top: 2rem;
+  }
+
+  .quote {
+    max-width: 820px;
+    margin: 2rem auto 0;
+    font-family: var(--serif);
+    font-size: clamp(1.75rem, 1.4rem + 1.5vw, 2.75rem);
+    line-height: 1.15;
+    text-wrap: balance;
+  }
+
+  .signature {
+    font-family: var(--serif);
+    font-size: 1.75em;
+    font-weight: 400;
+  }
+
+  .footer {
+    color: var(--ink-muted);
+    font-size: var(--fs-small);
+  }
+
+  .notes {
+    display: grid;
+    gap: 0.5rem;
+    max-width: var(--reading);
+    padding-left: 1.25em;
+  }
+
+  .notes a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 44px;
+    min-height: 44px;
+    margin-block: -12px;
+    text-decoration: none;
+  }
+
+  .trademark {
+    max-width: var(--reading);
+    margin-top: 1.5rem;
+  }
+</style>
