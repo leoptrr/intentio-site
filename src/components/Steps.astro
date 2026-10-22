@@ -1,0 +1,133 @@
+---
+// Passos em linhas compactas ao lado de um cartão com o iPhone (como no Cordel).
+// Cada linha é um botão: tocar troca a tela do iPhone para a daquele passo, com fade de 260 ms.
+// Com movimento e visível, avança sozinho a cada 4,5 s até a pessoa tocar numa linha (motion.ts).
+// Sem JS, as linhas são só texto e o iPhone mostra o último passo.
+import Phone from "./Phone.astro";
+import { rich } from "../lib/rich.mjs";
+
+interface Props {
+  alt: string;
+  steps: { title: string; text?: string; visual: string; screen?: string }[];
+  numbered?: boolean;
+  flip?: boolean;
+}
+
+const { alt, steps, numbered = false, flip = false } = Astro.props;
+---
+
+<div class:list={["steps-block", { flip }]} data-steps>
+  <div class="steps-text">
+    <slot />
+    <ul class="rows">
+      {
+        steps.map((s, i) => (
+          <li>
+            <button type="button" class="row" data-step={i} aria-pressed={i === steps.length - 1 ? "true" : "false"}>
+              <span class="row-title">
+                {numbered && <span class="n">{i + 1}</span>}
+                {s.title}
+              </span>
+              {s.text && <span class="row-text" set:html={rich(s.text)} />}
+            </button>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+  <div class="card">
+    <Phone alt={alt} layers={steps.map((s) => ({ alt: s.visual, screen: s.screen }))} crop="bottom" width={300} />
+  </div>
+</div>
+
+<style>
+  .steps-block {
+    display: grid;
+    gap: 2rem;
+    align-items: center;
+  }
+
+  @media (min-width: 900px) {
+    .steps-block {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 4rem;
+    }
+
+    .flip .steps-text {
+      order: 2;
+    }
+  }
+
+  .rows {
+    margin-top: 2rem;
+    padding: 0;
+    list-style: none;
+    border-top: 1px solid var(--line);
+  }
+
+  .rows li {
+    border-bottom: 1px solid var(--line);
+  }
+
+  .row {
+    display: grid;
+    gap: 0.25rem;
+    width: 100%;
+    min-height: 44px;
+    padding: 1rem 0 1rem 1rem;
+    border: 0;
+    border-left: 2px solid transparent;
+    background: none;
+    color: var(--ink);
+    cursor: pointer;
+    font: inherit;
+    text-align: left;
+    transition: border-color 200ms var(--ease-enter);
+  }
+
+  .row-title {
+    display: flex;
+    gap: 0.625rem;
+    font-size: 1.0625rem;
+    font-weight: 500;
+  }
+
+  .n {
+    color: var(--ink-muted);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .row-text {
+    color: var(--ink-muted);
+  }
+
+  /* Sem JS todas as linhas ficam iguais; com JS (data-ready), a escolhida ganha o traço em tinta. */
+  [data-ready] .row[aria-pressed="true"] {
+    border-left-color: var(--ink);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    [data-ready] .row:hover {
+      border-left-color: var(--line-strong);
+    }
+
+    [data-ready] .row[aria-pressed="true"]:hover {
+      border-left-color: var(--ink);
+    }
+  }
+
+  /* O iPhone nasce de dentro do cartão cinza e é cortado pela borda de baixo. */
+  .card {
+    display: flex;
+    justify-content: center;
+    padding: 2.5rem 1.5rem 0;
+    overflow: hidden;
+    border-radius: 28px;
+    background: var(--surface-200);
+  }
+
+  .card :global(.phone) {
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+</style>

@@ -3,21 +3,26 @@
 // - screen: nome do arquivo em src/assets/screens/ (sem extensão), capturado do app com os dados da nota ¹.
 //   Sem o arquivo, a tela mostra o texto alternativo (provisório, o build avisa).
 // - layers: várias telas empilhadas no mesmo iPhone. A camada de movimento troca a ativa
-//   (cenas fixas, hero) ou o scroll troca sozinho (scrub). Sem movimento, fica a camada `rest`
+//   (cenas fixas, hero). Sem movimento, fica a camada `rest`
 //   (padrão: a última, o estado final).
 // - video: nome do arquivo em public/video/ (sem extensão). A captura de mesmo nome vira o poster.
 //   A camada de movimento decide quando carregar e tocar.
 // - priority: para o iPhone da primeira tela (hero): carrega já e com prioridade alta (LCP).
 // - crop: corta o iPhone pela borda ("bottom" mostra a metade de cima, "top" a de baixo).
-// - scrub: as camadas trocam conforme o iPhone atravessa a tela (CSS scroll-driven).
 // A moldura é desenhada em CSS, no formato do iPhone 17 Pro. [FALTA] trocar pela moldura oficial.
 import { Picture, getImage } from "astro:assets";
-import type { ImageMetadata } from "astro";
+import { findScreen } from "../lib/screens";
 
 interface Layer {
   alt: string;
   screen?: string;
-  word?: number; // hero: índice da palavra da headline que acende com esta tela
+  // Roteiro do hero (motion.ts): palavra da headline que acende, como a tela entra,
+  // toque [x, y] em % antes de sair, quanto tempo fica (ms) e se é a tela de repouso.
+  word?: number;
+  enter?: "rise" | "fade" | "cut";
+  tap?: [number, number];
+  hold?: number;
+  rest?: boolean;
 }
 
 interface Props {
@@ -29,26 +34,20 @@ interface Props {
   crop?: "top" | "bottom";
   width?: number;
   priority?: boolean;
-  scrub?: boolean;
 }
 
-const { alt, screen, layers, video, crop, width = 300, priority = false, scrub = false } = Astro.props;
+const { alt, screen, layers, video, crop, width = 300, priority = false } = Astro.props;
 const items: Layer[] = layers ?? [{ alt, screen: screen ?? video }];
-const rest = Astro.props.rest ?? items.length - 1;
+const marked = items.findIndex((l) => l.rest);
+const rest = Astro.props.rest ?? (marked >= 0 ? marked : items.length - 1);
+const taps = items.some((l) => l.tap);
 
-const files = import.meta.glob<{ default: ImageMetadata }>("../assets/screens/*.{png,jpg,jpeg}", { eager: true });
-const find = (name?: string) => {
-  if (!name) return undefined;
-  const hit = Object.entries(files).find(([path]) => path.replace(/^.*\/|\.\w+$/g, "") === name)?.[1].default;
-  if (!hit) console.warn(`[landing] tela "${name}" não encontrada em src/assets/screens/`);
-  return hit;
-};
-const images = items.map((l) => find(l.screen));
+const images = items.map((l) => findScreen(l.screen));
 const poster = video && images[0] ? (await getImage({ src: images[0], width: width * 2, format: "webp" })).src : undefined;
 ---
 
 <figure
-  class:list={["phone", crop && `crop-${crop}`, { scrub }]}
+  class:list={["phone", crop && `crop-${crop}`]}
   style={`--w:${width}px;--n:${items.length}`}
   data-layers={items.length > 1 ? "" : undefined}
 >
@@ -61,7 +60,14 @@ const poster = video && images[0] ? (await getImage({ src: images[0], width: wid
           </div>
         ) : (
           items.map((l, i) => (
-            <div class="layer" style={`--i:${i}`} data-rest={i === rest ? "" : undefined} data-word={l.word}>
+            <div
+              class="layer"
+              data-rest={i === rest ? "" : undefined}
+              data-word={l.word}
+              data-enter={l.enter}
+              data-tap={l.tap?.join(",")}
+              data-hold={l.hold}
+            >
               {images[i] ? (
                 <Picture
                   src={images[i]}
@@ -80,6 +86,7 @@ const poster = video && images[0] ? (await getImage({ src: images[0], width: wid
           ))
         )
       }
+      {taps && <span class="tap" aria-hidden="true" />}
       <span class="island"></span>
     </div>
   </div>
@@ -131,47 +138,17 @@ const poster = video && images[0] ? (await getImage({ src: images[0], width: wid
     opacity: 1;
   }
 
-  /* Com movimento, depois que o motion.ts assume (data-ready), quem manda é a classe is-active. */
-  :global(html.motion) [data-layers][data-ready]:not(.scrub) .layer {
+  /* Depois que o motion.ts assume (data-ready), quem manda é a classe is-active. O fade só com movimento. */
+  [data-layers][data-ready] .layer {
     opacity: 0;
-    transition: opacity 260ms cubic-bezier(0.77, 0, 0.175, 1);
   }
 
-  :global(html.motion) [data-layers][data-ready]:not(.scrub) .layer:global(.is-active) {
+  [data-layers][data-ready] .layer:global(.is-active) {
     opacity: 1;
   }
 
-  /* Scrub: cada camada entra no seu trecho da travessia e fica; a primeira já começa visível.
-     Sem suporte a scroll-driven, fica a camada rest (a última, o estado final). */
-  @supports (animation-timeline: view()) {
-    :global(html.motion) .scrub {
-      view-timeline-name: --phone;
-    }
-
-    :global(html.motion) .scrub .layer {
-      opacity: 1;
-      /* Propriedades separadas: no shorthand, o minificador junta a timeline e o navegador descarta tudo. */
-      animation-name: layer-in;
-      animation-timing-function: linear;
-      animation-fill-mode: both;
-      animation-timeline: --phone;
-      /* As trocas se espalham pelo meio da travessia (25% a 75% de cover), cada uma em 4%. */
-      animation-range: cover calc(25% + var(--i) / var(--n) * 50%) cover calc(29% + var(--i) / var(--n) * 50%);
-    }
-
-    :global(html.motion) .scrub .layer:first-child {
-      animation-name: none;
-    }
-  }
-
-  @keyframes layer-in {
-    from {
-      opacity: 0;
-    }
-
-    to {
-      opacity: 1;
-    }
+  :global(html.motion) [data-layers][data-ready] .layer {
+    transition: opacity 260ms cubic-bezier(0.77, 0, 0.175, 1);
   }
 
   .screen :global(img),
@@ -182,8 +159,23 @@ const poster = video && images[0] ? (await getImage({ src: images[0], width: wid
     object-position: top;
   }
 
+  /* Toque simulado: um círculo translúcido, como o indicador de toque do iOS. */
+  .tap {
+    position: absolute;
+    z-index: 50;
+    width: 13cqw;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: rgba(20, 23, 26, 0.35);
+    box-shadow: 0 0 0 1.5cqw rgba(20, 23, 26, 0.12);
+    opacity: 0;
+    pointer-events: none;
+    transform: translate(-50%, -50%);
+  }
+
   .island {
     position: absolute;
+    z-index: 60;
     top: 2.7cqw;
     left: 50%;
     width: 31cqw;
@@ -231,6 +223,12 @@ const poster = video && images[0] ? (await getImage({ src: images[0], width: wid
   .crop-top {
     aspect-ratio: 71.9 / 90;
     overflow: hidden;
+  }
+
+  /* O corte some em branco, em vez de terminar seco na borda. */
+  .crop-bottom {
+    -webkit-mask-image: linear-gradient(#000 75%, transparent);
+    mask-image: linear-gradient(#000 75%, transparent);
   }
 
   .crop-top .frame {
