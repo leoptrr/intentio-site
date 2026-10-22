@@ -1,0 +1,149 @@
+---
+import { LAUNCHED, APP_STORE_URL } from "../site.config.mjs";
+
+interface Props {
+  nav: { brand: string; links: { label: string; href: string }[]; soon: string; download: string };
+}
+
+const { nav } = Astro.props;
+---
+
+<header class="nav">
+  <nav class="wrap nav-inner" aria-label="Principal">
+    <a class="brand" href="#hero">{nav.brand}</a>
+    <ul class="links">
+      {nav.links.map((l) => <li><a href={l.href}>{l.label}</a></li>)}
+    </ul>
+    <details class="menu">
+      <summary>Menu</summary>
+      <ul>
+        {nav.links.map((l) => <li><a href={l.href}>{l.label}</a></li>)}
+      </ul>
+    </details>
+    {
+      LAUNCHED ? (
+        <a class="nav-cta" href={APP_STORE_URL} data-cta="barra">{nav.download}</a>
+      ) : (
+        <span class="nav-cta soon">{nav.soon}</span>
+      )
+    }
+  </nav>
+</header>
+
+<script is:inline>
+  // Fecha o menu do celular depois de escolher um link.
+  document.querySelector(".menu").addEventListener("click", (e) => {
+    if (e.target.closest("a")) e.currentTarget.open = false;
+  });
+</script>
+
+<style>
+  /* Vidro só na navegação (design system). */
+  .nav {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    border-bottom: 1px solid var(--line);
+    background: var(--glass-nav);
+    -webkit-backdrop-filter: blur(12px) saturate(180%);
+    backdrop-filter: blur(12px) saturate(180%);
+  }
+
+  .nav-inner {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    min-height: 52px;
+    font-size: var(--fs-small);
+  }
+
+  .brand {
+    margin-right: auto;
+    font-family: var(--serif);
+    font-size: 1.375rem;
+    text-decoration: none;
+  }
+
+  ul {
+    display: flex;
+    gap: 0.25rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  ul a,
+  .nav-cta {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding-inline: 0.5rem;
+    text-decoration: none;
+  }
+
+  .nav-cta {
+    padding-inline: 1rem;
+    border-radius: var(--radius-full);
+    background: var(--ink);
+    color: var(--on-ink);
+    font-weight: 600;
+  }
+
+  .nav-cta.soon {
+    background: var(--glass-platter);
+    color: var(--ink);
+  }
+
+  ul a,
+  .nav-cta,
+  summary {
+    white-space: nowrap;
+  }
+
+  /* No celular os links ficam num menu; no computador, em linha. */
+  .menu {
+    display: none;
+  }
+
+  @media (max-width: 734px) {
+    .links {
+      display: none;
+    }
+
+    .menu {
+      display: block;
+      position: relative;
+    }
+
+    summary {
+      display: inline-flex;
+      align-items: center;
+      min-height: 44px;
+      padding-inline: 0.5rem;
+      cursor: pointer;
+      list-style: none;
+    }
+
+    summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .menu ul {
+      position: absolute;
+      top: 100%;
+      right: 0;
+      flex-direction: column;
+      min-width: 12rem;
+      padding: 0.5rem;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-md);
+      background: var(--surface-raised);
+      box-shadow: 0 8px 24px rgba(20, 23, 26, 0.08);
+    }
+
+    .menu ul a {
+      width: 100%;
+      padding-inline: 0.75rem;
+    }
+  }
+</style>

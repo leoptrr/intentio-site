@@ -1,0 +1,39 @@
+---
+// Único CTA da página (diretriz 2.1 e 2.9). Antes do lançamento, só texto e sem link.
+import { LAUNCHED, APP_STORE_URL } from "../site.config.mjs";
+
+interface Props {
+  position: "barra" | "hero" | "preco" | "final";
+}
+
+const { position } = Astro.props;
+---
+
+{
+  LAUNCHED ? (
+    // [FALTA] badge oficial "Baixar na App Store" em pt-BR (preta no claro, contorno no escuro).
+    <a class="cta" href={APP_STORE_URL} data-cta={position}>
+      Baixar na App Store
+    </a>
+  ) : (
+    <p class="cta cta-soon">Em breve na App Store</p>
+  )
+}
+
+<style>
+  .cta {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    margin-top: 2rem;
+    font-weight: 600;
+  }
+
+  a.cta {
+    padding-inline: 1.5rem;
+    border-radius: var(--radius-full);
+    background: var(--ink);
+    color: var(--on-ink);
+    text-decoration: none;
+  }
+</style>

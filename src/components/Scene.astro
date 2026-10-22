@@ -1,0 +1,104 @@
+---
+// Cena fixa (diretriz 2.5): o iPhone fica parado enquanto os passos rolam, e cada passo
+// que chega ao meio da tela troca a tela do iPhone (fade de 260 ms, no motion.ts).
+// Sem movimento, ou num celular baixo (menos de 700 px), vira a sequência empilhada:
+// todos os passos e o iPhone no estado final.
+import Phone from "./Phone.astro";
+import { rich } from "../lib/rich.mjs";
+
+interface Props {
+  alt: string;
+  steps: { title: string; text?: string; visual: string; screen?: string }[];
+  tag?: "ol" | "ul";
+}
+
+const { alt, steps, tag: Tag = "ol" } = Astro.props;
+---
+
+<div class="scene" data-scene>
+  <Tag class:list={["scene-steps", Tag === "ol" && "steps"]}>
+    {
+      steps.map((s, i) => (
+        <li data-step={i}>
+          <h3>{s.title}</h3>
+          {s.text && <p set:html={rich(s.text)} />}
+        </li>
+      ))
+    }
+  </Tag>
+  <div class="scene-phone">
+    <Phone alt={alt} layers={steps.map((s) => ({ alt: s.visual, screen: s.screen }))} />
+  </div>
+</div>
+
+<style>
+  .scene {
+    display: grid;
+    gap: 3rem;
+    margin-top: 3rem;
+    align-items: start;
+  }
+
+  .scene-steps {
+    display: grid;
+    gap: 2rem;
+    padding: 0;
+    list-style: none;
+  }
+
+  .scene-steps h3 {
+    font-size: 1em;
+    font-weight: 600;
+  }
+
+  .scene-steps p {
+    margin-top: 0.25rem;
+    color: var(--ink-muted);
+  }
+
+  @media (min-width: 735px) {
+    .scene {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    }
+  }
+
+  /* Cena fixa: com movimento e espaço para o iPhone ficar parado. */
+  @media (min-width: 735px), (min-height: 700px) {
+    :global(html.motion) .scene-phone {
+      position: sticky;
+      /* Centro da tela, descontada a barra fixa; o iPhone de 300 px tem cerca de 626 px de altura. */
+      top: max(64px, calc(50svh - 287px));
+    }
+
+    :global(html.motion) .scene-steps {
+      gap: 0;
+    }
+
+    :global(html.motion) .scene-steps li {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      min-height: 70svh;
+    }
+  }
+
+  /* No celular alto: o iPhone menor fica no topo, e os passos rolam embaixo dele. */
+  @media (max-width: 734px) and (min-height: 700px) {
+    :global(html.motion) .scene-phone {
+      order: -1;
+      z-index: 1;
+      top: 52px;
+      padding-block: 0.75rem;
+      background: var(--bg);
+    }
+
+    :global(html.motion) .scene-phone {
+      --phone-w: calc(44svh * 71.9 / 150);
+    }
+
+    :global(html.motion) .scene-steps li {
+      min-height: 45svh;
+      justify-content: flex-start;
+    }
+  }
+</style>
