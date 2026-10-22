@@ -1,0 +1,48 @@
+---
+import tokens from "../tokens.json";
+import "../styles/global.css";
+
+interface Props {
+  title: string;
+  description: string;
+}
+
+const { title, description } = Astro.props;
+
+// Variáveis CSS a partir de tokens.json (cópia do design system). "{accent}" aponta para outro token.
+const colors = tokens.color.tokens.map((t) => {
+  const value = typeof t.value === "string" ? tokens.color.tokens.find((o) => `{${o.name}}` === t.value)!.value : t.value;
+  return [t.name, value as { light: string; dark: string }] as const;
+});
+const theme = (mode: "light" | "dark") => colors.map(([name, v]) => `--${name}:${v[mode]};`).join("");
+const scale = [...tokens.spacing.tokens, ...tokens.radius.tokens].map((t) => `--${t.name}:${t.value};`).join("");
+const tokenCss =
+  `:root{${scale}${theme("light")}}` +
+  `@media (prefers-color-scheme: dark){:root{${theme("dark")}}}` +
+  `.theme-dark{${theme("dark")}}`;
+---
+
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta name="theme-color" content="#FAFAF9" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#101214" media="(prefers-color-scheme: dark)" />
+    <link rel="preload" href="/fonts/Geist-Variable.woff2" as="font" type="font/woff2" crossorigin />
+    <style is:inline set:html={tokenCss} />
+    <script is:inline>
+      // Portão de movimento (como o "enhanced" da Apple): só com JS e sem Reduzir movimento.
+      // Se o motion.ts não assumir em 3 s, a página volta ao estado final, sem nada escondido.
+      if (matchMedia("(prefers-reduced-motion: no-preference)").matches) {
+        document.documentElement.classList.add("motion");
+        setTimeout(() => window.__motion || document.documentElement.classList.remove("motion"), 3000);
+      }
+    </script>
+  </head>
+  <body>
+    <slot />
+  </body>
+</html>
