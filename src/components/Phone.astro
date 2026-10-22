@@ -69,6 +69,7 @@ const poster = video && images[0] ? (await getImage({ src: images[0], width: wid
                   widths={[width, width * 2]}
                   sizes={`${width}px`}
                   formats={["avif", "webp"]}
+                  fallbackFormat="webp"
                   loading={priority && i === rest ? "eager" : "lazy"}
                   fetchpriority={priority && i === rest ? "high" : "auto"}
                 />

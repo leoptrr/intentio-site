@@ -3,6 +3,8 @@
 # Cada chave de topo é uma seção. Os números sobrescritos (¹ ² ³ ⁴) viram links para as notas.
 # Valores em reais podem ser escritos com espaço comum: o build troca por espaço não separável.
 # Texto com [FALTA: …] precisa ser preenchido antes de publicar (o build avisa).
+# screen: nome da captura em src/assets/screens/. Hoje vêm do protótipo v0.4 (18/10/2026, dados de exemplo);
+# trocar pelas capturas do build antes de publicar (diretriz 2.4).
 
 meta:
   title: "Intentio · Saiba se a compra cabe no seu mês"
@@ -25,30 +27,36 @@ hero:
   visual: "Tela do Intentio avaliando duas compras: R$ 389,90 com o veredito Espere e R$ 150 com o veredito Cabe"
   # Cada tela acende a palavra da headline de mesmo índice (0 Cabe, 1 Espere, 2 Não cabe).
   screens:
-    - { alt: "Compra de R$ 389,90 com o veredito Espere", word: 1 }
-    - { alt: "Compra de R$ 150 com o veredito Cabe", word: 0 }
+    - { alt: "Compra de R$ 389,90 com o veredito Espere", screen: "avaliar-espere", word: 1 }
+    - { alt: "Compra de R$ 150 com o veredito Cabe", screen: "avaliar-cabe", word: 0 }
 
 destaques:
   title: "O que cabe no Intentio."
   cards:
     - label: "Avaliar compra"
       text: "Faz sentido comprar agora? Ele responde em uma palavra."
-      visual: "Tela Avaliar compra com o veredito em uma palavra"
+      visual: "Tela Avaliar compra com o veredito Espere para uma compra de R$ 389,90"
+      screen: "avaliar-espere"
     - label: "Quanto cabe"
       text: "R$ 69 por dia até o salário.¹"
-      visual: "Tela Hoje mostrando R$ 69 por dia até o salário"
+      visual: "Tela Hoje: quanto cabe R$ 1.251 até 5 de novembro, R$ 69 por dia"
+      screen: "hoje"
     - label: "Próximos meses"
       text: "12 meses à frente, dia por dia."
-      visual: "Grade com os próximos 12 meses coloridos por estado"
+      visual: "Próximos meses: grade de outubro a setembro, todos os meses com Cabe"
+      screen: "meses-grade"
     - label: "Contas e parcelas"
       text: "Cada uma no dia em que vence."
-      visual: "Lista de contas fixas e parcelas com o dia de cada uma"
+      visual: "Lista de contas fixas com o dia de cada uma: aluguel, internet, academia, streaming e luz"
+      screen: "contas-fixas"
     - label: "Configuração"
       text: "Três passos e você já vê o seu número."
-      visual: "Primeiro passo da configuração, com renda e dia do pagamento"
+      visual: "Primeiro passo da configuração: renda de R$ 6.200 e pagamento no dia 5"
+      screen: "setup-1"
     - label: "Privacidade"
       text: "Seus números ficam no seu iPhone.²"
-      visual: "Tela de Ajustes com a sincronização pelo iCloud"
+      visual: "Tela de Ajustes com renda, reserva, aparência e iCloud ativo"
+      screen: "ajustes"
 
 avaliar:
   eyebrow: "Avaliar compra"
@@ -58,12 +66,15 @@ avaliar:
     - title: "Digite o valor."
       text: "R$ 389,90, à vista ou parcelado."
       visual: "Folha Avaliar compra com o valor R$ 389,90 digitado"
+      screen: "avaliar-valor"
     - title: "Ele olha os próximos meses."
       text: "Salário, contas fixas, parcelas, dívidas e o que você costuma gastar por dia entram na conta."
-      visual: "Projeção dos próximos meses sendo calculada"
+      visual: "Mês a mês com a compra: novembro aperta e usa R$ 159 da reserva"
+      screen: "avaliar-meses"
     - title: "E responde."
       text: "Espere: novembro fica abaixo de zero por 3 dias e usa até R$ 159 da reserva.¹"
       visual: "Veredito Espere para a compra de R$ 389,90"
+      screen: "avaliar-espere"
   verdicts:
     - state: "positive"
       word: "Cabe"
@@ -93,7 +104,8 @@ quanto-cabe:
       - { label: "Reserva do mês", value: "− R$ 480,00" }
       - { label: "Gastos desde 5 out", value: "− R$ 4.469,00" }
     total: { label: "Quanto cabe", value: "R$ 1.251,00" }
-  visual: "Tela Hoje com R$ 1.251 até o dia 5 e a conta aberta linha por linha"
+  visual: "Tela Hoje com a conta aberta linha por linha: entrou R$ 6.200, reserva R$ 480, gastos R$ 4.469, quanto cabe R$ 1.251"
+  screen: "hoje-conta"
 
 proximos-meses:
   eyebrow: "Próximos meses"
@@ -103,13 +115,16 @@ proximos-meses:
   points:
     - title: "Cores com palavra"
       text: "Azul quando sobra, laranja quando a reserva entra, vermelho quando falta. A palavra vem sempre junto. O “Cabe” é azul, e não verde, para quem tem daltonismo."
-      visual: "Grade dos próximos 12 meses, cada mês com a cor e a palavra do estado"
+      visual: "Grade dos próximos 12 meses com a legenda de cores e a tabela dia a dia de outubro"
+      screen: "meses-grade"
     - title: "Com e sem a compra"
       text: "Compare o mês com e sem a compra, um ao lado do outro."
-      visual: "Tabela dia a dia de novembro com e sem a compra"
+      visual: "Mês a mês com a opção Com a compra e Sem a compra e novembro em Aperta"
+      screen: "avaliar-meses"
     - title: "Folga"
       text: "Quando sobra, o Intentio mostra quanto dá para guardar a mais."
-      visual: "Sugestão de quanto dá para guardar a mais no mês"
+      visual: "Sugestão: sobra folga em todos os meses e dá para guardar R$ 520 a mais por mês"
+      screen: "meses-folga"
   visual: "Grade dos próximos 12 meses e a tabela dia a dia de novembro"
 
 pagamentos:
@@ -117,16 +132,20 @@ pagamentos:
   cards:
     - title: "Parcelas"
       text: "Parcelou? Você escolhe o dia em que as parcelas caem, e cada uma entra no mês certo."
-      visual: "Compra parcelada com o dia de cada parcela"
+      visual: "Parcelamento da geladeira: R$ 289 por mês, faltam 5 parcelas, todo dia 15"
+      screen: "parcelas"
     - title: "Contas fixas"
       text: "Aluguel, internet, luz e academia, cada uma no seu dia."
       visual: "Lista de contas fixas com o dia de vencimento"
+      screen: "contas-fixas"
     - title: "Agendados"
       text: "Uma conta que ainda vai chegar já entra na projeção."
-      visual: "Lançamento agendado para uma data futura"
+      visual: "Agendado: IPVA de R$ 1.800 em 20 de janeiro de 2027"
+      screen: "lancamentos-agendados"
     - title: "Gasto do dia a dia"
       text: "Mercado e café também contam. O Intentio sugere quanto você costuma gastar por dia."
-      visual: "Sugestão de gasto do dia a dia"
+      visual: "Gasto do dia a dia de R$ 60 nos Ajustes"
+      screen: "gasto-dia"
 
 lancamentos:
   eyebrow: "Lançamentos"
@@ -134,6 +153,7 @@ lancamentos:
   subtitle: "Veja o que saiu e o que entrou em cada período. Em outubro, até o dia 18, saíram R$ 4.469 e entraram R$ 6.200.¹"
   detail: "Apagou sem querer? Toque em Desfazer."
   visual: "Tela Lançamentos no mês de outubro: saiu R$ 4.469, entrou R$ 6.200"
+  screen: "lancamentos"
 
 plano:
   eyebrow: "Plano"
@@ -145,7 +165,8 @@ plano:
   statsNote: "¹"
   order: "Menor saldo ou maior juro. Você escolhe e vê a diferença; neste exemplo, R$ 299 de juros.¹"
   closing: "O valor do plano já sai do quanto cabe."
-  visual: "Tela Plano com fora do vermelho em setembro de 2027"
+  visual: "Tela Plano: falta pagar R$ 7.980, fora do vermelho em setembro de 2027"
+  screen: "plano"
 
 design:
   eyebrow: "Design"
@@ -162,14 +183,14 @@ design:
   visuals:
     - alt: "Tela Hoje do Intentio no tema claro, com a letra crescendo até o maior tamanho"
       layers:
-        - { alt: "Tema claro, letra no tamanho padrão" }
-        - { alt: "Tema claro, letra grande" }
-        - { alt: "Tema claro, letra no maior tamanho" }
+        - { alt: "Tema claro, letra no tamanho padrão", screen: "hoje" }
+        - { alt: "Tema claro, letra grande", screen: "hoje-ax1" }
+        - { alt: "Tema claro, letra no maior tamanho", screen: "hoje-ax2" }
     - alt: "Tela Hoje do Intentio no tema escuro, com a letra crescendo até o maior tamanho"
       layers:
-        - { alt: "Tema escuro, letra no tamanho padrão" }
-        - { alt: "Tema escuro, letra grande" }
-        - { alt: "Tema escuro, letra no maior tamanho" }
+        - { alt: "Tema escuro, letra no tamanho padrão", screen: "hoje-escuro" }
+        - { alt: "Tema escuro, letra grande", screen: "hoje-ax1-escuro" }
+        - { alt: "Tema escuro, letra no maior tamanho", screen: "hoje-ax2-escuro" }
 
 privacidade:
   title: "Seus números ficam no seu iPhone."
@@ -185,11 +206,19 @@ privacidade:
 comecar:
   title: "Três passos até o seu primeiro número."
   steps:
-    - { title: "Quanto você recebe e em que dia.", text: "" }
-    - { title: "Suas contas fixas.", text: "Sugestões prontas para tocar e ajustar." }
-    - { title: "Quanto guardar por mês.", text: "5, 10 ou 15% da renda, ou o valor que você quiser." }
+    - title: "Quanto você recebe e em que dia."
+      visual: "Passo 1: renda de R$ 6.200 e pagamento no dia 5"
+      screen: "setup-1"
+    - title: "Suas contas fixas."
+      text: "Sugestões prontas para tocar e ajustar."
+      visual: "Passo 2: aluguel, internet e conta de luz, com sugestões para tocar"
+      screen: "setup-2"
+    - title: "Quanto guardar por mês."
+      text: "5, 10 ou 15% da renda, ou o valor que você quiser."
+      visual: "Passo 3: reserva de R$ 480 por mês, com as opções de 5, 10 e 15%"
+      screen: "setup-3"
   closing: "Seu mês começa assim."
-  visual: "Configuração em três passos terminando no quanto cabe"
+  visual: "Sequência no iPhone: os três passos da configuração"
 
 preco:
   title: "R$ 19,90 por mês."
@@ -229,7 +258,8 @@ perguntas:
 baixar:
   title: "Gaste de propósito."
   body: "Antes de comprar, saiba se cabe. R$ 19,90 por mês, no seu iPhone."
-  visual: "Tela Hoje do Intentio só com o número e o ponto laranja"
+  visual: "Tela Hoje do Intentio no tema escuro: quanto cabe R$ 1.251"
+  screen: "hoje-escuro"
 
 notas:
   items:
