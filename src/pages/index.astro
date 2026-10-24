@@ -10,6 +10,7 @@ import Phone from "../components/Phone.astro";
 import Steps from "../components/Steps.astro";
 import HandPhone from "../components/HandPhone.astro";
 import { rich, resetNotes } from "../lib/rich.mjs";
+import { LAUNCHED, APP_STORE_URL } from "../site.config.mjs";
 
 const c = Object.fromEntries((await getCollection("landing")).map((e) => [e.id, e.data as any]));
 
@@ -21,17 +22,60 @@ const { hero, avaliar, pagamentos, lancamentos, plano, privacidade, comecar, pre
 const quanto = c["quanto-cabe"];
 const meses = c["proximos-meses"];
 const tiles = [quanto, lancamentos, plano];
+
+// Dados estruturados (schema.org): o app com os dois planos, as perguntas e o site.
+// Antes do lançamento os planos ficam em pré-venda; os números de nota (¹ ² ³) saem do texto.
+const plain = (t: string) => t.replace(/[¹²³⁴]/g, "");
+const site = Astro.site?.href;
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@graph": [
+    { "@type": "WebSite", name: "Intentio", inLanguage: "pt-BR", ...(site && { url: site }) },
+    {
+      "@type": "MobileApplication",
+      name: "Intentio",
+      description: c.meta.description,
+      operatingSystem: "iOS 27",
+      applicationCategory: "FinanceApplication",
+      inLanguage: "pt-BR",
+      ...(LAUNCHED && APP_STORE_URL && { downloadUrl: APP_STORE_URL, installUrl: APP_STORE_URL }),
+      offers: preco.plans.map((p: any) => ({
+        "@type": "Offer",
+        name: p.name,
+        price: p.price,
+        priceCurrency: "BRL",
+        availability: LAUNCHED ? "https://schema.org/InStock" : "https://schema.org/PreOrder",
+        ...(!LAUNCHED && { availabilityStarts: "2027-01" }),
+        priceSpecification: { "@type": "UnitPriceSpecification", price: p.price, priceCurrency: "BRL", billingDuration: p.billing },
+      })),
+    },
+    {
+      "@type": "FAQPage",
+      inLanguage: "pt-BR",
+      mainEntity: perguntas.items.map((i: any) => ({
+        "@type": "Question",
+        name: plain(i.q),
+        acceptedAnswer: { "@type": "Answer", text: plain(i.a) },
+      })),
+    },
+  ],
+};
 ---
 
 <Layout title={c.meta.title} description={c.meta.description}>
+  <script type="application/ld+json" slot="head" set:html={JSON.stringify(jsonLd)} />
   <Nav nav={c.nav} />
 
   <main>
-    <section id="hero" class="hero" data-hero>
+    <section id="hero" class="hero" data-hero aria-labelledby="hero-title">
       <div class="wrap hero-grid">
         <div class="hero-text">
-          <h1 class="hero-title">{hero.words.map((w: string, i: number) => <>{i > 0 && " "}<span data-word={i}>{w}</span></>)}</h1>
+          <h1 class="hero-title" id="hero-title">{hero.title}</h1>
           <p class="lede" set:html={rich(hero.subtitle)} />
+          <p class="answers">
+            <span class="answers-label">{hero.answersLabel}</span>
+            {hero.answers.map((a: string, i: number) => <span class={`reply reply-${i}`} data-word={i}>{a}</span>)}
+          </p>
           <Cta position="hero" />
           <p class="note" set:html={rich(hero.note)} />
         </div>
@@ -44,11 +88,11 @@ const tiles = [quanto, lancamentos, plano];
       </div>
     </section>
 
-    <section id="avaliar" class="section">
+    <section id="avaliar" class="section" aria-labelledby="avaliar-title">
       <div class="wrap">
         <Steps alt={avaliar.alt} steps={avaliar.steps} numbered>
           <p class="eyebrow">{avaliar.eyebrow}</p>
-          <h2 class="headline">{avaliar.title}</h2>
+          <h2 class="headline" id="avaliar-title">{avaliar.title}</h2>
           <p class="lede" set:html={rich(avaliar.subtitle)} />
         </Steps>
         <ul class="verdicts">
@@ -65,9 +109,9 @@ const tiles = [quanto, lancamentos, plano];
       </div>
     </section>
 
-    <section id="visao" class="section tight">
+    <section id="visao" class="section tight" aria-labelledby="visao-title">
       <div class="wrap">
-        <h2 class="visually-hidden">Quanto cabe, lançamentos e plano</h2>
+        <h2 class="visually-hidden" id="visao-title">Quanto cabe, lançamentos e plano</h2>
         <ul class="tiles">
           {
             tiles.map((t: any) => (
@@ -85,29 +129,29 @@ const tiles = [quanto, lancamentos, plano];
       </div>
     </section>
 
-    <section id="proximos-meses" class="section">
+    <section id="proximos-meses" class="section" aria-labelledby="meses-title">
       <div class="wrap">
         <Steps alt={meses.alt} steps={meses.steps} flip>
           <p class="eyebrow">{meses.eyebrow}</p>
-          <h2 class="headline">{meses.title}</h2>
+          <h2 class="headline" id="meses-title">{meses.title}</h2>
           <p class="lede" set:html={rich(meses.subtitle)} />
         </Steps>
       </div>
     </section>
 
-    <section id="pagamentos" class="section">
+    <section id="pagamentos" class="section" aria-labelledby="pagamentos-title">
       <div class="wrap">
         <Steps alt={pagamentos.alt} steps={pagamentos.steps}>
           <p class="eyebrow">{pagamentos.eyebrow}</p>
-          <h2 class="headline">{pagamentos.title}</h2>
+          <h2 class="headline" id="pagamentos-title">{pagamentos.title}</h2>
         </Steps>
       </div>
     </section>
 
-    <section id="privacidade" class="section">
+    <section id="privacidade" class="section" aria-labelledby="privacidade-title">
       <div class="wrap">
         <div data-reveal>
-          <h2 class="headline">{privacidade.title}</h2>
+          <h2 class="headline" id="privacidade-title">{privacidade.title}</h2>
           <p class="lede" set:html={rich(privacidade.subtitle)} />
         </div>
         <ul class="facts">
@@ -123,19 +167,19 @@ const tiles = [quanto, lancamentos, plano];
       </div>
     </section>
 
-    <section id="comecar" class="section">
+    <section id="comecar" class="section" aria-labelledby="comecar-title">
       <div class="wrap">
         <Steps alt={comecar.alt} steps={comecar.steps} numbered flip>
-          <h2 class="headline">{comecar.title}</h2>
+          <h2 class="headline" id="comecar-title">{comecar.title}</h2>
         </Steps>
       </div>
     </section>
 
-    <section id="preco" class="section tight">
+    <section id="preco" class="section tight" aria-labelledby="preco-title">
       <div class="wrap">
         <div class="final" data-reveal>
           <div class="live" aria-hidden="true"><span class="b1"></span><span class="b2"></span><span class="halo"></span></div>
-          <h2 class="headline">{baixar.title}</h2>
+          <h2 class="headline" id="preco-title">{baixar.title}</h2>
           <p class="lede" set:html={rich(baixar.body)} />
           <ul class="plans">
             {
@@ -155,9 +199,9 @@ const tiles = [quanto, lancamentos, plano];
       </div>
     </section>
 
-    <section id="perguntas" class="section">
+    <section id="perguntas" class="section" aria-labelledby="perguntas-title">
       <div class="wrap faq">
-        <h2 class="headline" data-reveal>{perguntas.title}</h2>
+        <h2 class="headline" id="perguntas-title" data-reveal>{perguntas.title}</h2>
         <div class="accordion">
           {
             perguntas.items.map((i: any) => (
@@ -226,9 +270,6 @@ const tiles = [quanto, lancamentos, plano];
     text-wrap: balance;
   }
 
-  .hero-title span {
-    display: inline-block;
-  }
 
   .hero .lede {
     margin-top: 1.25rem;
@@ -240,15 +281,49 @@ const tiles = [quanto, lancamentos, plano];
     font-size: var(--fs-small);
   }
 
-  /* A palavra do veredito acende junto com a tela. 50% mantém 3:1 (texto grande). */
-  :global(html.motion) .hero[data-ready] .hero-title span {
-    opacity: 0.5;
-    transition: opacity 260ms var(--ease-move);
+  /* As três respostas possíveis. A do veredito na tela acende na cor do estado (motion.ts). */
+  .answers {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 1.5rem;
   }
 
-  :global(html.motion) .hero[data-ready] .hero-title span.is-lit,
-  :global(html.motion) .hero.calm .hero-title span {
-    opacity: 1;
+  .answers-label {
+    margin-right: 0.25rem;
+    color: var(--ink-muted);
+    font-size: var(--fs-small);
+  }
+
+  .reply {
+    padding: 0.25rem 0.75rem;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-full);
+    font-size: var(--fs-small);
+    font-weight: 500;
+    transition:
+      background-color 200ms var(--ease-enter),
+      border-color 200ms var(--ease-enter),
+      color 200ms var(--ease-enter);
+  }
+
+  .reply-0.is-lit {
+    border-color: transparent;
+    background: var(--positive-soft);
+    color: var(--positive);
+  }
+
+  .reply-1.is-lit {
+    border-color: transparent;
+    background: var(--accent-soft);
+    color: var(--accent-strong);
+  }
+
+  .reply-2.is-lit {
+    border-color: transparent;
+    background: var(--negative-soft);
+    color: var(--negative);
   }
 
   /* O cartão tem a proporção da foto: a mão preenche tudo e o fundo vivo aparece por trás (multiply). */
