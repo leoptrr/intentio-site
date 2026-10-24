@@ -55,11 +55,12 @@ const images = layers.map((l) => findScreen(l.screen));
             <Picture
               src={images[i]}
               alt=""
-              widths={[300, 600]}
-              sizes="300px"
+              widths={[200, 400, 600]}
+              sizes="(min-width: 900px) 203px, 40vw"
               formats={["avif", "webp"]}
               fallbackFormat="webp"
               loading={priority && (i === rest || i === 0) ? "eager" : "lazy"}
+              fetchpriority={priority && (i === rest || i === 0) ? "auto" : "low"}
             />
           )}
         </div>
@@ -71,7 +72,7 @@ const images = layers.map((l) => findScreen(l.screen));
     <Picture
     src={photo}
     alt=""
-    widths={[480, 960]}
+    widths={[480, 720, 960]}
     sizes="(min-width: 900px) 460px, 90vw"
     formats={["avif", "webp"]}
     fallbackFormat="webp"
