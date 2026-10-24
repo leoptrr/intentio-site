@@ -6,9 +6,11 @@
 # screen: nome da captura em src/assets/screens/. Hoje vêm do protótipo v0.4 (dados de exemplo);
 # trocar pelas capturas do build antes de publicar (diretriz 2.4).
 
+# Busca: quem procura um app para controlar gastos ou saber se pode comprar algo agora.
+# title até ~60 caracteres; description até ~155. Os dois só aparecem nesta página.
 meta:
-  title: "Intentio · Saiba se a compra cabe no seu mês"
-  description: "O app para iPhone que diz se a compra cabe no seu mês, antes de você pagar. R$ 14,90 por mês ou R$ 149 por ano."
+  title: "Intentio: app minimalista para saber se a compra cabe no mês"
+  description: "App minimalista de finanças para iPhone: antes de pagar, veja se a compra cabe no seu mês, dia a dia até o dinheiro entrar de novo."
 
 nav:
   brand: "Intentio"
@@ -20,12 +22,19 @@ nav:
   download: "Baixar"
 
 hero:
-  words: ["Cabe.", "Espere.", "Não cabe."]
-  subtitle: "O app para iPhone que diz se a compra cabe no seu mês, antes de você pagar."
+  # H1 (decisão de 23/10): o momento (antes de cada compra), o que o app diz (se cabe no seu mês)
+  # e o horizonte que só ele projeta (até o dinheiro entrar de novo). Na comunicação, "cabe" sempre com o complemento.
+  # Sem "salário" na copy: o app aceita qualquer renda ("Renda mensal" e "Dia do pagamento" no app).
+  title: "Antes de cada compra, veja se ela cabe no seu mês até o dinheiro entrar de novo."
+  subtitle: "Um app minimalista para iPhone. Ele soma o que entra, contas fixas, parcelas e reserva, dia a dia, e responde antes de você pagar."
+  # As três respostas acendem junto com o veredito na tela do iPhone (mesmo índice do word da sequência).
+  # No app as palavras são Cabe, Espere e Não cabe; aqui vêm com o complemento que dá o contexto.
+  answersLabel: "Para cada compra, uma de três respostas:"
+  answers: ["Cabe no mês", "Espere para comprar", "Não cabe no mês"]
   note: "Chega à App Store em janeiro de 2027. Para iPhone 11 ou mais novo.³"
   visual: "iPhone com o Intentio: na tela Hoje, a pessoa toca em Avaliar compra, digita o valor e vê o veredito: Espere, Cabe ou Não cabe"
   # Roteiro do iPhone no hero, em loop: a tela Hoje, toque em Avaliar compra, a folha sobe, o valor
-  # aparece digitado, toque em Avaliar e o veredito, que acende a palavra da headline de mesmo índice
+  # aparece digitado, toque em Avaliar e o veredito, que acende a resposta de mesmo índice
   # (word: 0 Cabe, 1 Espere, 2 Não cabe).
   # enter: como a tela entra (rise = folha subindo, fade, cut = sem transição); tap: toque [x, y] em %
   # da tela antes de sair dela (posições medidas no protótipo); hold: quanto tempo fica, em ms.
@@ -45,7 +54,7 @@ hero:
 avaliar:
   eyebrow: "Avaliar compra"
   title: "Uma pergunta antes de cada compra."
-  subtitle: "Você digita o valor. O Intentio olha o seu mês dia a dia, até o próximo salário, e responde antes de você pagar."
+  subtitle: "Você digita o valor. O Intentio olha o seu mês dia a dia, até o dinheiro entrar de novo, e responde antes de você pagar."
   alt: "Avaliar compra no iPhone: o valor, os próximos meses e a resposta"
   steps:
     - title: "Digite o valor."
@@ -53,7 +62,7 @@ avaliar:
       visual: "Folha Avaliar compra com o valor digitado"
       screen: "avaliar-valor"
     - title: "Ele olha os próximos meses."
-      text: "Salário, contas fixas, parcelas, dívidas e o que você costuma gastar por dia entram na conta."
+      text: "Sua renda, contas fixas, parcelas, dívidas e o que você costuma gastar por dia entram na conta."
       visual: "Mês a mês com a compra, mostrando em que mês o saldo aperta"
       screen: "avaliar-meses"
     - title: "E responde."
@@ -62,22 +71,22 @@ avaliar:
       screen: "veredito-espere"
   verdicts:
     - state: "positive"
-      word: "Cabe"
+      word: "Cabe no mês"
       text: "Sobra dinheiro em todos os dias depois da compra."
     - state: "wait"
-      word: "Espere"
-      text: "A reserva cobre alguns dias no vermelho. Depois do próximo salário, a compra pode caber."
+      word: "Espere para comprar"
+      text: "A reserva cobre alguns dias no vermelho. Quando o dinheiro entrar de novo, a compra pode caber."
     - state: "negative"
-      word: "Não cabe"
+      word: "Não cabe no mês"
       text: "Nem a reserva cobre. Você vê em que mês falta e quanto."
   closing: "A decisão continua sua. Registre a compra assim mesmo, e os próximos meses se ajustam na hora."
 
 quanto-cabe:
   eyebrow: "Quanto cabe"
   title: "Um número para o mês inteiro."
-  subtitle: "Quanto você ainda pode gastar até o próximo salário, já sem a reserva e as contas que vão vencer."
+  subtitle: "Quanto você ainda pode gastar até o dinheiro entrar de novo, já sem a reserva e as contas que vão vencer."
   detail: "Toque em “Como chegamos nesse número” e a conta abre, linha por linha."
-  visual: "Tela Hoje com o quanto cabe até o próximo salário e o valor por dia"
+  visual: "Tela Hoje com o quanto cabe até o próximo pagamento e o valor por dia"
   screen: "hoje"
 
 proximos-meses:
@@ -169,8 +178,9 @@ comecar:
 preco:
   # Preços de 22/10/2026. [FALTA: teste grátis, sim ou não]. Se houver, entra aqui e nas perguntas.
   plans:
-    - { name: "Mensal", value: "R$ 14,90", period: "por mês", note: "Menos de R$ 0,50 por dia." }
-    - { name: "Anual", value: "R$ 149", period: "por ano", note: "O mesmo que 10 meses." }
+    # price e billing (ISO 8601) alimentam os dados estruturados (JSON-LD).
+    - { name: "Mensal", value: "R$ 14,90", period: "por mês", note: "Menos de R$ 0,50 por dia.", price: "14.90", billing: "P1M" }
+    - { name: "Anual", value: "R$ 149", period: "por ano", note: "O mesmo que 10 meses.", price: "149.00", billing: "P1Y" }
 
 perguntas:
   title: "Perguntas"

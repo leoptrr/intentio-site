@@ -12,7 +12,7 @@
   --sans: Geist, -apple-system, system-ui, sans-serif;
 
   /* clamp() entre 375 px e 1440 px de largura, em rem para seguir o zoom de texto. */
-  --fs-hero: clamp(2.75rem, 2.16rem + 2.54vw, 4.5rem);
+  --fs-hero: clamp(2.25rem, 1.83rem + 1.78vw, 3.5rem);
   --fs-h2: clamp(1.875rem, 1.57rem + 1.31vw, 2.75rem);
   --fs-lede: clamp(1.125rem, 1.08rem + 0.19vw, 1.25rem);
   --fs-small: 0.875rem;
